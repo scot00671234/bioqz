@@ -85,7 +85,7 @@ export default function Landing() {
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
               Your Bio, 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600"> Simplified</span>
+              <span className="text-brand-600"> Quickly</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slide-up">
               Create a stunning bio page that showcases all your links in one place. Perfect for social media, business cards, and email signatures.
