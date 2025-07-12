@@ -133,7 +133,7 @@ export default function Demo() {
               </p>
               <Button
                 onClick={() => {
-                  window.location.href = "/api/login";
+                  window.open("/api/login", "_self");
                 }}
                 className="bg-brand-600 text-white hover:bg-brand-700"
               >
