@@ -57,7 +57,7 @@ export default function Demo() {
               <h1 className="text-2xl font-bold text-brand-600">bioqz Demo</h1>
             </div>
             <Button 
-              onClick={() => navigate("/")}
+              onClick={() => window.location.href = "/api/login"}
               className="bg-brand-600 text-white hover:bg-brand-700"
             >
               Create Your Own

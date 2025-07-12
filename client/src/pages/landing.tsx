@@ -207,7 +207,7 @@ export default function Landing() {
 
                 </ul>
                 <Button 
-                  onClick={() => navigate("/subscribe")} 
+                  onClick={() => window.location.href = "/api/login"} 
                   className="w-full bg-brand-600 text-white hover:bg-brand-700"
                 >
                   Upgrade to Pro
