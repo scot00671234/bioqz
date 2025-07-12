@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLocation } from "wouter";
+import type { Bio } from "../../../shared/schema";
 
 export default function Settings() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -34,7 +35,7 @@ export default function Settings() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: bio } = useQuery({
+  const { data: bio } = useQuery<Bio | null>({
     queryKey: ["/api/bios/me"],
     enabled: isAuthenticated,
     retry: false,

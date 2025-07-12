@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import BioForm from "@/components/BioForm";
 import { useLocation } from "wouter";
+import type { Bio } from "../../../shared/schema";
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -31,7 +32,7 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: bio } = useQuery({
+  const { data: bio } = useQuery<Bio | null>({
     queryKey: ["/api/bios/me"],
     enabled: isAuthenticated,
     retry: false,
