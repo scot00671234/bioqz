@@ -11,6 +11,10 @@ export default function BioPreview() {
 
   const { data: bio, isLoading, error } = useQuery({
     queryKey: ["/api/bios", username],
+    queryFn: () => fetch(`/api/bios/${username}`).then(res => {
+      if (!res.ok) throw new Error('Bio not found');
+      return res.json();
+    }),
     enabled: !!username,
     retry: false,
   });

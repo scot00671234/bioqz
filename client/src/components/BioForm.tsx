@@ -90,17 +90,17 @@ export default function BioForm({ bio }: BioFormProps) {
         ...data,
         profilePicture,
       });
+      if (!bioResponse.ok) {
+        const error = await bioResponse.json();
+        throw new Error(error.message || "Failed to save bio");
+      }
       return bioResponse.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Bio updated successfully!",
-      });
       queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -114,7 +114,7 @@ export default function BioForm({ bio }: BioFormProps) {
       }
       toast({
         title: "Error",
-        description: "Failed to update bio. Please try again.",
+        description: error.message || "Failed to update bio. Please try again.",
         variant: "destructive",
       });
     },
@@ -123,12 +123,16 @@ export default function BioForm({ bio }: BioFormProps) {
   const usernameMutation = useMutation({
     mutationFn: async (username: string) => {
       const response = await apiRequest("POST", "/api/users/username", { username });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update username");
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -140,9 +144,14 @@ export default function BioForm({ bio }: BioFormProps) {
         }, 500);
         return;
       }
+      const message = error.message || "Failed to update username";
+      const isUsernameTaken = message.includes("already taken");
+      
       toast({
-        title: "Error",
-        description: "Failed to update username. It may already be taken.",
+        title: isUsernameTaken ? "Username Taken" : "Error",
+        description: isUsernameTaken 
+          ? "This username is already taken. Please choose a different one."
+          : message,
         variant: "destructive",
       });
     },
@@ -171,19 +180,36 @@ export default function BioForm({ bio }: BioFormProps) {
   };
 
   const onSubmit = async (data: BioFormData) => {
-    // Update username if changed
-    if (data.username !== user?.username) {
-      await usernameMutation.mutateAsync(data.username);
-    }
+    try {
+      // Update username if changed
+      if (data.username !== user?.username) {
+        await usernameMutation.mutateAsync(data.username);
+      }
 
-    // Filter out empty links
-    const validLinks = links.filter(link => link.title && link.url);
-    
-    bioMutation.mutate({
-      ...data,
-      links: validLinks,
-      profilePicture,
-    });
+      // Filter out empty links
+      const validLinks = links.filter(link => link.title && link.url);
+      
+      // Create/update bio
+      await bioMutation.mutateAsync({
+        ...data,
+        links: validLinks,
+        profilePicture,
+      });
+
+      // Show success message and navigate to the bio page
+      toast({
+        title: "Success!",
+        description: `Your bio is now live at bioqz.com/${data.username}`,
+      });
+      
+      // Wait a moment then navigate to the bio
+      setTimeout(() => {
+        window.open(`/${data.username}`, '_blank');
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Failed to save bio:", error);
+    }
   };
 
   return (
