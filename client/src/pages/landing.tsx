@@ -36,7 +36,7 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-brand-600">QuickBio</h1>
+                <h1 className="text-2xl font-bold text-brand-600 animate-bounce-subtle">bioqz</h1>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -83,11 +83,11 @@ export default function Landing() {
       <section id="home" className="bg-gradient-to-br from-brand-50 to-purple-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
               Your Bio, 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600"> Simplified</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slide-up">
               Create a stunning bio page that showcases all your links in one place. Perfect for social media, business cards, and email signatures.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -122,7 +122,7 @@ export default function Landing() {
                 <Link className="text-brand-600 h-8 w-8" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Custom Links</h3>
-              <p className="text-gray-600">Add unlimited links to your social profiles, websites, and content</p>
+              <p className="text-gray-600">Add links to your social profiles, websites, and content (1 link free, unlimited with Pro)</p>
             </div>
             <div className="text-center">
               <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">

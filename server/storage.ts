@@ -84,6 +84,7 @@ export class DatabaseStorage implements IStorage {
         name: bios.name,
         description: bios.description,
         avatarUrl: bios.avatarUrl,
+        profilePicture: bios.profilePicture,
         links: bios.links,
         createdAt: bios.createdAt,
         updatedAt: bios.updatedAt,

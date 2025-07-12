@@ -46,6 +46,7 @@ export const bios = pgTable("bios", {
   name: varchar("name").notNull(),
   description: text("description"),
   avatarUrl: varchar("avatar_url"),
+  profilePicture: varchar("profile_picture"),
   links: jsonb("links").default([]),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -16,15 +16,15 @@ export default function BioCard({ bio, username }: BioCardProps) {
     <Card className="shadow-xl">
       <CardContent className="p-8 text-center">
         {/* Profile Image */}
-        <div className="mb-6">
-          {bio.avatarUrl ? (
+        <div className="mb-6 animate-fade-in">
+          {(bio.profilePicture || bio.avatarUrl) ? (
             <img
-              src={bio.avatarUrl}
+              src={bio.profilePicture || bio.avatarUrl}
               alt={`${bio.name} profile`}
-              className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+              className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg warm-shadow"
             />
           ) : (
-            <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center border-4 border-white shadow-lg">
+            <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center border-4 border-white shadow-lg warm-shadow">
               <span className="text-white text-2xl font-bold">
                 {bio.name?.charAt(0).toUpperCase() || "U"}
               </span>
@@ -33,9 +33,9 @@ export default function BioCard({ bio, username }: BioCardProps) {
         </div>
 
         {/* Name and Bio */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{bio.name}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 animate-slide-up">{bio.name}</h1>
         {bio.description && (
-          <p className="text-gray-600 mb-8">{bio.description}</p>
+          <p className="text-gray-600 mb-8 animate-slide-up">{bio.description}</p>
         )}
 
         {/* Links */}
@@ -64,7 +64,7 @@ export default function BioCard({ bio, username }: BioCardProps) {
         {/* Powered by */}
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-sm text-gray-500">
-            Powered by <span className="text-brand-600 font-semibold">QuickBio</span>
+            Powered by <span className="text-brand-600 font-semibold">bioqz</span>
           </p>
         </div>
       </CardContent>

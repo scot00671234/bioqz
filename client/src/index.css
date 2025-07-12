@@ -13,8 +13,8 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
+  --primary: hsl(20, 84%, 60%);
+  --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(60, 4.8%, 95.9%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
   --accent: hsl(60, 4.8%, 95.9%);
@@ -24,13 +24,17 @@
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
   
-  /* Brand colors matching the design */
-  --brand-50: hsl(236, 100%, 97%);
-  --brand-100: hsl(234, 100%, 95%);
-  --brand-400: hsl(234, 85%, 68%);
-  --brand-500: hsl(234, 89%, 60%);
-  --brand-600: hsl(234, 89%, 54%);
-  --brand-700: hsl(234, 89%, 48%);
+  /* Warm brand colors */
+  --brand-50: hsl(20, 100%, 97%);
+  --brand-100: hsl(20, 100%, 94%);
+  --brand-200: hsl(20, 100%, 87%);
+  --brand-300: hsl(20, 100%, 80%);
+  --brand-400: hsl(20, 100%, 70%);
+  --brand-500: hsl(20, 84%, 60%);
+  --brand-600: hsl(20, 84%, 55%);
+  --brand-700: hsl(20, 84%, 45%);
+  --brand-800: hsl(20, 84%, 35%);
+  --brand-900: hsl(20, 84%, 25%);
 }
 
 .dark {
@@ -44,8 +48,8 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
+  --primary: hsl(20, 84%, 60%);
+  --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
   --accent: hsl(240, 3.7%, 15.9%);
@@ -120,5 +124,56 @@
   }
   .hover\:text-brand-700:hover {
     color: var(--brand-700);
+  }
+  
+  .brand-gradient {
+    background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-600) 100%);
+  }
+  
+  .warm-shadow {
+    box-shadow: 0 4px 20px -2px hsla(20, 84%, 60%, 0.15);
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  .animate-bounce-subtle {
+    animation: bounceSubtle 2s infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
