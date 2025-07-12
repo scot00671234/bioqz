@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, Link, Palette, BarChart3, Menu } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import landingBgImage from "@assets/image_1752358072631.png";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -80,8 +81,20 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="bg-gradient-to-br from-brand-50 to-purple-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section 
+        id="home" 
+        className="relative py-20 bg-gradient-to-br from-brand-50 to-purple-50"
+        style={{
+          backgroundImage: `url(${landingBgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Optional overlay for better text readability */}
+        <div className="absolute inset-0 bg-white/70"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
               Your Bio, 
