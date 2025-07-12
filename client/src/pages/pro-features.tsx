@@ -40,8 +40,33 @@ export default function ProFeatures() {
     navigate("/subscribe");
   };
 
-  const handleUpgradeToPro = () => {
-    navigate("/subscribe");
+  const handleUpgradeToPro = async () => {
+    try {
+      const response = await fetch("/api/upgrade-to-pro", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Pro Features Unlocked!",
+          description: "You now have access to all Pro features",
+        });
+        navigate("/dashboard");
+        // Force a page refresh to update user state
+        window.location.reload();
+      } else {
+        throw new Error("Failed to upgrade to Pro");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upgrade to Pro. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

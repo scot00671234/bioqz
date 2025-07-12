@@ -170,6 +170,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+  // Instant Pro upgrade route
+  app.post('/api/upgrade-to-pro', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.upsertUser({
+        id: userId,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        username: req.user.username,
+        profileImageUrl: req.user.profileImageUrl,
+        isPaid: true, // Enable Pro features
+      });
+
+      res.json({ message: "Pro features activated", user });
+    } catch (error: any) {
+      console.error("Error upgrading to Pro:", error);
+      res.status(500).json({ message: "Failed to upgrade to Pro" });
+    }
+  });
+
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
