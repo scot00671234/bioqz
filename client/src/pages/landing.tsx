@@ -168,10 +168,6 @@ export default function Landing() {
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
                     <span>1 link only</span>
                   </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>QuickBio branding</span>
-                  </li>
                 </ul>
                 <Button 
                   onClick={handleGetStarted} 
@@ -208,10 +204,7 @@ export default function Landing() {
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
                     <span>Analytics dashboard</span>
                   </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>No branding</span>
-                  </li>
+
                 </ul>
                 <Button 
                   onClick={() => navigate("/subscribe")} 
