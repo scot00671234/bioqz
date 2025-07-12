@@ -2,19 +2,21 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBioSchema, insertUserSchema, users } from "@shared/schema";
 import { ZodError } from "zod";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import express from "express";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2023-10-16",
+  });
+} else {
+  console.warn('STRIPE_SECRET_KEY not set. Payment features will be disabled.');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -150,6 +152,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment route for one-time payments
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service not available" });
+      }
       const { amount } = req.body;
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -166,6 +171,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service not available" });
+      }
+      
       const userId = req.user.id;
       let user = await storage.getUser(userId);
 

@@ -11,10 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : null;
 
 const SubscribeForm = () => {
   const stripe = useStripe();
@@ -198,9 +197,21 @@ export default function Subscribe() {
 
           {/* Payment Form */}
           <div>
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <SubscribeForm />
-            </Elements>
+            {stripePromise ? (
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <SubscribeForm />
+              </Elements>
+            ) : (
+              <Card className="w-full max-w-md mx-auto">
+                <CardContent className="pt-6 text-center">
+                  <p className="text-gray-600 mb-4">Payment processing is not available in development mode.</p>
+                  <Button onClick={() => navigate("/dashboard")} variant="outline">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Dashboard
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
