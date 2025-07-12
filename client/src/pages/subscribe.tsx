@@ -5,20 +5,21 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Crown } from "lucide-react";
+import { Check, Crown, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { isUnauthorizedError } from "@/lib/authUtils";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_mock_key_for_development');
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const SubscribeForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
-  const [, navigate] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,55 +31,45 @@ const SubscribeForm = () => {
 
     setIsProcessing(true);
 
-    try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: window.location.origin,
-        },
-      });
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/dashboard?upgraded=true`,
+      },
+    });
 
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Payment Successful",
-          description: "Welcome to QuickBio Pro!",
-        });
-        navigate("/");
-      }
-    } catch (error) {
+    if (error) {
       toast({
-        title: "Payment Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Payment Failed",
+        description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
+    } else {
+      toast({
+        title: "Payment Successful",
+        description: "Welcome to bioqz Pro!",
+      });
     }
+    setIsProcessing(false);
   };
 
   return (
-    <Card className="max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Crown className="h-5 w-5 mr-2 text-brand-600" />
-          Upgrade to Pro
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center text-brand-700">
+          <Crown className="h-6 w-6 mr-2" />
+          Complete Your Upgrade
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <PaymentElement />
-          <Button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="w-full bg-brand-600 text-white hover:bg-brand-700"
+          <Button 
+            type="submit" 
+            className="w-full bg-brand-600 hover:bg-brand-700" 
+            disabled={!stripe || !elements || isProcessing}
           >
-            {isProcessing ? "Processing..." : "Subscribe for $8/month"}
+            {isProcessing ? "Processing..." : "Subscribe to Pro - $9/month"}
           </Button>
         </form>
       </CardContent>
@@ -88,79 +79,45 @@ const SubscribeForm = () => {
 
 export default function Subscribe() {
   const [clientSecret, setClientSecret] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const [error, setError] = useState("");
   const [, navigate] = useLocation();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
+    if (!isAuthenticated) {
+      navigate("/");
       return;
     }
-  }, [isAuthenticated, authLoading, toast]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
 
     // Create subscription as soon as the page loads
     apiRequest("POST", "/api/get-or-create-subscription")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to create subscription");
+        }
+        return res.json();
+      })
       .then((data) => {
         setClientSecret(data.clientSecret);
-        setIsLoading(false);
       })
-      .catch((error) => {
-        if (isUnauthorizedError(error)) {
-          toast({
-            title: "Unauthorized",
-            description: "You are logged out. Logging in again...",
-            variant: "destructive",
-          });
-          setTimeout(() => {
-            window.location.href = "/api/login";
-          }, 500);
-          return;
-        }
-        toast({
-          title: "Error",
-          description: "Failed to initialize subscription. Please try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
+      .catch((err) => {
+        setError(err.message);
       });
-  }, [isAuthenticated, toast]);
-
-  if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
+  }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
     return null;
   }
 
-  if (!clientSecret) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Error</h1>
-            <p className="text-gray-600 mb-4">
-              Failed to initialize subscription. Please try again.
-            </p>
-            <Button onClick={() => navigate("/")} variant="outline">
-              Go Back
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button onClick={() => navigate("/dashboard")} variant="outline">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
             </Button>
           </CardContent>
         </Card>
@@ -168,64 +125,87 @@ export default function Subscribe() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <Button
-            onClick={() => navigate("/")}
-            variant="ghost"
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          <h1 className="text-3xl font-bold text-gray-900">Subscribe to QuickBio Pro</h1>
-          <p className="text-gray-600 mt-2">
-            Unlock premium features and take your bio page to the next level.
-          </p>
-        </div>
+  if (!clientSecret) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Features */}
-          <Card>
-            <CardHeader>
-              <CardTitle>What's included in Pro</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Unlimited links</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Premium themes</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Custom domains</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Analytics dashboard</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Remove QuickBio branding</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="h-2 w-2 bg-brand-600 rounded-full mr-3"></div>
-                  <span>Priority support</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-purple-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-brand-600 mr-8">bioqz</h1>
+              <span className="text-gray-600">Upgrade to Pro</span>
+            </div>
+            <Button onClick={() => navigate("/dashboard")} variant="ghost">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          {/* Pro Features */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              Upgrade to <span className="text-brand-600">bioqz Pro</span>
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">Unlimited Links</h3>
+                  <p className="text-gray-600">Add as many links as you want to your bio page</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">Detailed Analytics</h3>
+                  <p className="text-gray-600">Track views, clicks, and engagement on your bio page</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">Priority Support</h3>
+                  <p className="text-gray-600">Get help when you need it with priority customer support</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">Custom Themes</h3>
+                  <p className="text-gray-600">Personalize your bio page with custom colors and styles</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 p-4 bg-brand-50 rounded-lg border border-brand-200">
+              <p className="text-sm text-brand-700">
+                <strong>30-day money-back guarantee.</strong> If you're not satisfied, we'll refund your payment, no questions asked.
+              </p>
+            </div>
+          </div>
 
           {/* Payment Form */}
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <SubscribeForm />
-          </Elements>
+          <div>
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <SubscribeForm />
+            </Elements>
+          </div>
         </div>
       </div>
     </div>

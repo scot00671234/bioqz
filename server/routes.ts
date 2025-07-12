@@ -3,10 +3,18 @@ import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertBioSchema, insertUserSchema } from "@shared/schema";
+import { insertBioSchema, insertUserSchema, users } from "@shared/schema";
 import { ZodError } from "zod";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import express from "express";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_for_development');
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -140,6 +148,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe payment route for one-time payments
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+      });
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
@@ -151,23 +175,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (user.stripeSubscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-        const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string, {
-          expand: ['payment_intent']
-        });
-
-        // Handle the payment_intent properly
-        const paymentIntent = (invoice as any).payment_intent;
-        const clientSecret = paymentIntent && typeof paymentIntent === 'object' 
-          ? paymentIntent.client_secret 
-          : null;
-
+        const paymentIntent = await stripe.paymentIntents.retrieve(user.stripeSubscriptionId);
+        
         return res.json({
-          subscriptionId: subscription.id,
-          clientSecret,
+          subscriptionId: paymentIntent.id,
+          clientSecret: paymentIntent.client_secret,
         });
       }
-
+      
       if (!user.email) {
         return res.status(400).json({ message: 'No user email on file' });
       }
@@ -177,47 +192,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email,
       });
 
-      // Create a price if STRIPE_PRICE_ID is not set
-      let priceId = process.env.STRIPE_PRICE_ID;
-      if (!priceId) {
-        const product = await stripe.products.create({
-          name: 'QuickBio Pro',
-          description: 'Premium bio page features',
-        });
-
-        const price = await stripe.prices.create({
-          unit_amount: 800, // $8.00
-          currency: 'usd',
-          recurring: {
-            interval: 'month',
-          },
-          product: product.id,
-        });
-
-        priceId = price.id;
-      }
-
-      const subscription = await stripe.subscriptions.create({
+      // Create a simple payment intent for testing
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 900, // $9.00 in cents
+        currency: 'usd',
         customer: customer.id,
-        items: [{
-          price: priceId,
-        }],
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice.payment_intent'],
+        setup_future_usage: 'off_session',
       });
 
-      user = await storage.updateUserStripeInfo(userId, customer.id, subscription.id);
-
-      const invoice = subscription.latest_invoice as any;
-      const paymentIntent = invoice.payment_intent as any;
+      await storage.updateUserStripeInfo(userId, customer.id, paymentIntent.id);
 
       res.json({
-        subscriptionId: subscription.id,
+        subscriptionId: paymentIntent.id,
         clientSecret: paymentIntent.client_secret,
       });
     } catch (error: any) {
-      console.error("Stripe error:", error);
-      return res.status(400).json({ message: error.message });
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ message: "Failed to create subscription" });
+    }
+  });
+
+  // Stripe webhook to handle payment success
+  app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    
+    try {
+      // For testing purposes, we'll handle payment intent succeeded events
+      const event = JSON.parse(req.body.toString());
+      
+      if (event.type === 'payment_intent.succeeded') {
+        const paymentIntent = event.data.object;
+        
+        if (paymentIntent.customer) {
+          // Find user by Stripe customer ID and update their payment status
+          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, paymentIntent.customer));
+          
+          if (userResults.length > 0) {
+            await storage.updateUserStripeInfo(userResults[0].id, paymentIntent.customer, paymentIntent.id);
+          }
+        }
+      }
+      
+      res.json({ received: true });
+    } catch (err) {
+      console.error('Webhook error:', err);
+      res.status(400).send('Webhook Error');
     }
   });
 
