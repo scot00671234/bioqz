@@ -54,7 +54,7 @@ export default function Demo() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Home
               </Button>
-              <h1 className="text-2xl font-bold text-brand-600">QuickBio Demo</h1>
+              <h1 className="text-2xl font-bold text-brand-600">bioqz Demo</h1>
             </div>
             <Button 
               onClick={() => navigate("/")}
@@ -115,7 +115,7 @@ export default function Demo() {
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-sm text-gray-500">
                 Powered by{" "}
-                <span className="text-brand-600 font-semibold">QuickBio</span>
+                <span className="text-brand-600 font-semibold">bioqz</span>
               </p>
             </div>
           </CardContent>
@@ -129,7 +129,7 @@ export default function Demo() {
                 Ready to create your own?
               </h3>
               <p className="text-gray-600 mb-4">
-                Get started with QuickBio and build your personalized bio page in minutes
+                Get started with bioqz and build your personalized bio page in minutes
               </p>
               <Button
                 onClick={() => {

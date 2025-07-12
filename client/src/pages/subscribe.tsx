@@ -193,11 +193,7 @@ export default function Subscribe() {
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-brand-50 rounded-lg border border-brand-200">
-              <p className="text-sm text-brand-700">
-                <strong>30-day money-back guarantee.</strong> If you're not satisfied, we'll refund your payment, no questions asked.
-              </p>
-            </div>
+
           </div>
 
           {/* Payment Form */}

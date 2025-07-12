@@ -174,7 +174,7 @@ export default function Landing() {
                   variant="secondary" 
                   className="w-full"
                 >
-                  Get Started
+                  Get Started Free
                 </Button>
               </CardContent>
             </Card>
