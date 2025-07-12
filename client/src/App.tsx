@@ -8,6 +8,9 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import BioPreview from "@/pages/bio-preview";
 import Subscribe from "@/pages/subscribe";
+import Demo from "@/pages/demo";
+import Settings from "@/pages/settings";
+import Analytics from "@/pages/analytics";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,12 +21,16 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
+          <Route path="/demo" component={Demo} />
           <Route path="/:username" component={BioPreview} />
         </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/subscribe" component={Subscribe} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/analytics" component={Analytics} />
+          <Route path="/demo" component={Demo} />
           <Route path="/:username" component={BioPreview} />
         </>
       )}

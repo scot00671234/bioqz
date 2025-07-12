@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, Crown, TrendingUp, Eye, MousePointer } from "lucide-react";
+import { ExternalLink, Crown, TrendingUp, Eye, MousePointer, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -57,6 +57,14 @@ export default function Dashboard() {
     window.location.href = "/api/logout";
   };
 
+  const handleSettings = () => {
+    navigate("/settings");
+  };
+
+  const handleAnalytics = () => {
+    navigate("/analytics");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -88,6 +96,14 @@ export default function Dashboard() {
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Bio
+              </Button>
+              <Button
+                onClick={handleSettings}
+                variant="ghost"
+                className="text-gray-600 hover:text-gray-700"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </Button>
               <div className="flex items-center space-x-2">
                 {user?.profileImageUrl && (
@@ -193,7 +209,14 @@ export default function Dashboard() {
                       {user?.isPaid ? "+12%" : "—"}
                     </span>
                   </div>
-                  {!user?.isPaid && (
+                  {user?.isPaid ? (
+                    <Button
+                      onClick={handleAnalytics}
+                      className="w-full bg-brand-600 text-white hover:bg-brand-700"
+                    >
+                      View Full Analytics
+                    </Button>
+                  ) : (
                     <div className="text-sm text-gray-500 text-center mt-4">
                       Upgrade to Pro for detailed analytics
                     </div>

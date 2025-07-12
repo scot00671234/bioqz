@@ -116,6 +116,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete user account route
+  app.delete('/api/users/account', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Delete user's bio first
+      const existingBio = await storage.getBioByUserId(userId);
+      if (existingBio) {
+        await storage.deleteBio(userId);
+      }
+      
+      // Delete user
+      await storage.deleteUser(userId);
+      
+      // Logout user
+      req.logout(() => {
+        res.json({ message: "Account deleted successfully" });
+      });
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      res.status(500).json({ message: "Failed to delete account" });
+    }
+  });
+
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {

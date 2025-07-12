@@ -17,12 +17,14 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getUserByUsername(username: string): Promise<User | undefined>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  deleteUser(userId: string): Promise<void>;
   
   // Bio operations
   getBioByUserId(userId: string): Promise<Bio | undefined>;
   getBioByUsername(username: string): Promise<Bio | undefined>;
   createBio(bio: InsertBio): Promise<Bio>;
   updateBio(userId: string, bio: Partial<InsertBio>): Promise<Bio>;
+  deleteBio(userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -107,6 +109,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(bios.userId, userId))
       .returning();
     return updatedBio;
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, userId));
+  }
+
+  async deleteBio(userId: string): Promise<void> {
+    await db.delete(bios).where(eq(bios.userId, userId));
   }
 }
 

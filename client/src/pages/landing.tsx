@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Link, Palette, BarChart3, Menu } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [, navigate] = useLocation();
 
   const handleGetStarted = () => {
     window.location.href = "/api/login";
@@ -12,6 +14,18 @@ export default function Landing() {
 
   const handleSignIn = () => {
     window.location.href = "/api/login";
+  };
+
+  const handleViewDemo = () => {
+    navigate("/demo");
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setMobileMenuOpen(false);
+    }
   };
 
   return (
@@ -26,9 +40,9 @@ export default function Landing() {
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Home</a>
-              <a href="#features" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-              <a href="#pricing" className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
+              <button onClick={() => scrollToSection('home')} className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Home</button>
+              <button onClick={() => scrollToSection('features')} className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Features</button>
+              <button onClick={() => scrollToSection('pricing')} className="text-gray-700 hover:text-brand-600 px-3 py-2 text-sm font-medium transition-colors">Pricing</button>
               <Button variant="ghost" onClick={handleSignIn} className="text-gray-700 hover:text-brand-600">
                 Sign In
               </Button>
@@ -50,9 +64,9 @@ export default function Landing() {
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-2">
               <div className="space-y-1">
-                <a href="#home" className="block px-3 py-2 text-gray-700 hover:text-brand-600">Home</a>
-                <a href="#features" className="block px-3 py-2 text-gray-700 hover:text-brand-600">Features</a>
-                <a href="#pricing" className="block px-3 py-2 text-gray-700 hover:text-brand-600">Pricing</a>
+                <button onClick={() => scrollToSection('home')} className="block px-3 py-2 text-gray-700 hover:text-brand-600 w-full text-left">Home</button>
+                <button onClick={() => scrollToSection('features')} className="block px-3 py-2 text-gray-700 hover:text-brand-600 w-full text-left">Features</button>
+                <button onClick={() => scrollToSection('pricing')} className="block px-3 py-2 text-gray-700 hover:text-brand-600 w-full text-left">Pricing</button>
                 <Button variant="ghost" onClick={handleSignIn} className="w-full justify-start">
                   Sign In
                 </Button>
@@ -85,7 +99,7 @@ export default function Landing() {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => window.location.href = "/demo"}
+                onClick={handleViewDemo}
                 className="border-2 border-brand-600 text-brand-600 px-8 py-3 text-lg font-semibold hover:bg-brand-50 h-auto"
               >
                 View Example
