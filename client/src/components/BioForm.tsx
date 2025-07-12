@@ -46,7 +46,7 @@ export default function BioForm({ bio }: BioFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   
   // Check if user is on free plan and has reached link limit
-  const maxLinks = user?.isPaid ? 10 : 1;
+  const maxLinks = user?.isPaid ? Infinity : 1;
   const canAddMoreLinks = links.length < maxLinks;
 
   const form = useForm<BioFormData>({
@@ -326,11 +326,9 @@ export default function BioForm({ bio }: BioFormProps) {
           <div className="flex justify-between items-center">
             <CardTitle className="text-brand-700">Your Links</CardTitle>
             <div className="flex items-center space-x-2">
-              {!user?.isPaid && (
-                <span className="text-sm text-gray-500">
-                  {links.length}/1 link
-                </span>
-              )}
+              <span className="text-sm text-gray-500">
+                {user?.isPaid ? `${links.length} links` : `${links.length}/1 link`}
+              </span>
               <Button 
                 type="button" 
                 onClick={addLink} 
@@ -346,6 +344,11 @@ export default function BioForm({ bio }: BioFormProps) {
           {!user?.isPaid && (
             <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
               ⚡ Free plan: 1 link only. <strong>Upgrade to Pro</strong> for unlimited links!
+            </p>
+          )}
+          {user?.isPaid && (
+            <p className="text-sm text-green-600 bg-green-50 p-2 rounded-lg">
+              🎉 Pro plan: Add unlimited links!
             </p>
           )}
         </CardHeader>

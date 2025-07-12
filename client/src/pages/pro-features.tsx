@@ -40,31 +40,8 @@ export default function ProFeatures() {
     navigate("/subscribe");
   };
 
-  const handleActivateDemo = async () => {
-    try {
-      const response = await fetch("/api/activate-demo-mode", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (response.ok) {
-        toast({
-          title: "Demo Mode Activated!",
-          description: "You now have access to all Pro features",
-        });
-        navigate("/dashboard?demo=true");
-      } else {
-        throw new Error("Failed to activate demo mode");
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to activate demo mode. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleUpgradeToPro = () => {
+    navigate("/subscribe");
   };
 
   if (isLoading) {
@@ -141,10 +118,10 @@ export default function ProFeatures() {
               </Button>
               <h1 className="text-2xl font-bold text-brand-600">bioqz Pro</h1>
             </div>
-            {user?.isPaid || user?.isDemoMode ? (
+            {user?.isPaid ? (
               <Badge variant="secondary" className="bg-green-100 text-green-800">
                 <Crown className="h-4 w-4 mr-1" />
-                {user?.isDemoMode ? "Demo Mode Active" : "Pro Member"}
+                Pro Member
               </Badge>
             ) : (
               <Badge variant="secondary" className="bg-gray-100 text-gray-800">
@@ -170,21 +147,16 @@ export default function ProFeatures() {
         </div>
 
         {/* Current Status Card */}
-        {user?.isPaid || user?.isDemoMode ? (
+        {user?.isPaid ? (
           <Card className="mb-12 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center text-center">
                 <div className="flex items-center">
                   <Crown className="h-8 w-8 text-green-600 mr-3" />
                   <div>
-                    <h3 className="text-2xl font-bold text-green-800">
-                      {user?.isDemoMode ? "Demo Mode Active!" : "You're a Pro Member!"}
-                    </h3>
+                    <h3 className="text-2xl font-bold text-green-800">You're a Pro Member!</h3>
                     <p className="text-green-700">
-                      {user?.isDemoMode 
-                        ? "You have access to all Pro features. Add Stripe keys to enable real payments."
-                        : "You have access to all premium features."
-                      }
+                      You have access to all premium features.
                     </p>
                   </div>
                 </div>
@@ -206,15 +178,7 @@ export default function ProFeatures() {
                 </div>
                 <div className="flex space-x-4">
                   <Button
-                    onClick={handleActivateDemo}
-                    variant="outline"
-                    className="border-brand-600 text-brand-600 hover:bg-brand-50"
-                  >
-                    <Zap className="h-4 w-4 mr-2" />
-                    Try Demo Mode
-                  </Button>
-                  <Button
-                    onClick={handleGetPro}
+                    onClick={handleUpgradeToPro}
                     className="bg-brand-600 hover:bg-brand-700 text-white"
                   >
                     <Crown className="h-4 w-4 mr-2" />
@@ -238,7 +202,7 @@ export default function ProFeatures() {
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
                   </div>
-                  {(user?.isPaid || user?.isDemoMode) && (
+                  {user?.isPaid && (
                     <Check className="h-5 w-5 text-green-500" />
                   )}
                 </div>
@@ -341,30 +305,20 @@ export default function ProFeatures() {
                   </li>
                 </ul>
                 
-                {!(user?.isPaid || user?.isDemoMode) && (
-                  <div className="mt-6 space-y-3">
-                    <Button
-                      onClick={handleGetPro}
-                      className="w-full bg-brand-600 hover:bg-brand-700 text-white"
-                    >
-                      <Crown className="h-4 w-4 mr-2" />
-                      Get Pro - $9/month
-                    </Button>
-                    <Button
-                      onClick={handleActivateDemo}
-                      variant="outline"
-                      className="w-full border-brand-600 text-brand-600 hover:bg-brand-50"
-                    >
-                      <Zap className="h-4 w-4 mr-2" />
-                      Try Demo Mode First
-                    </Button>
-                  </div>
+                {!user?.isPaid && (
+                  <Button
+                    onClick={handleUpgradeToPro}
+                    className="w-full mt-6 bg-brand-600 hover:bg-brand-700 text-white"
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Get Pro - $9/month
+                  </Button>
                 )}
                 
-                {(user?.isPaid || user?.isDemoMode) && (
+                {user?.isPaid && (
                   <Button className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white" disabled>
                     <Check className="h-4 w-4 mr-2" />
-                    {user?.isDemoMode ? "Demo Active" : "Current Plan"}
+                    Current Plan
                   </Button>
                 )}
               </CardContent>
@@ -379,10 +333,10 @@ export default function ProFeatures() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h4 className="font-semibold text-lg mb-2">What is Demo Mode?</h4>
+              <h4 className="font-semibold text-lg mb-2">What Pro features do I get?</h4>
               <p className="text-gray-600">
-                Demo Mode gives you instant access to all Pro features without payment. 
-                It's perfect for testing and exploring before committing to a subscription.
+                Pro includes unlimited links, advanced analytics, custom themes, custom domains, 
+                priority support, and access to premium integrations.
               </p>
             </div>
             <div>

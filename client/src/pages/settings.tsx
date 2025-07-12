@@ -199,78 +199,7 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Stripe Configuration (Demo Mode) */}
-          {user?.isDemoMode && (
-            <Card className="border-yellow-200 bg-yellow-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-yellow-800">
-                  <Crown className="h-5 w-5 mr-2" />
-                  Stripe Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-yellow-100 p-4 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
-                    <strong>Demo Mode Active:</strong> Add your Stripe keys to enable real payment processing. 
-                    Get your keys from your <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="underline">Stripe Dashboard</a>.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="stripe_public_key">Stripe Publishable Key</Label>
-                    <Input
-                      id="stripe_public_key"
-                      placeholder="pk_test_..."
-                      value={stripePublicKey}
-                      onChange={(e) => setStripePublicKey(e.target.value)}
-                      className="font-mono text-sm"
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      Starts with "pk_test_" or "pk_live_" - safe to use in frontend
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="stripe_secret_key">Stripe Secret Key</Label>
-                    <Input
-                      id="stripe_secret_key"
-                      type="password"
-                      placeholder="sk_test_..."
-                      value={stripeSecretKey}
-                      onChange={(e) => setStripeSecretKey(e.target.value)}
-                      className="font-mono text-sm"
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      Starts with "sk_test_" or "sk_live_" - kept secure on server
-                    </p>
-                  </div>
-                </div>
-                <div className="flex space-x-4">
-                  <Button 
-                    onClick={() => {
-                      // In a real app, this would save to environment variables
-                      toast({
-                        title: "Configuration Saved",
-                        description: "Stripe keys would be saved to environment variables. For now, add them directly to your Replit secrets.",
-                        variant: "default",
-                      });
-                    }}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                  >
-                    Save Configuration
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      window.open("https://dashboard.stripe.com/apikeys", "_blank");
-                    }}
-                    variant="outline"
-                    className="border-yellow-600 text-yellow-600 hover:bg-yellow-50"
-                  >
-                    Get Stripe Keys
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+
 
           {/* Custom Domain (Pro Only) */}
           {user?.isPaid && (
