@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, Link, Palette, BarChart3, Menu } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
-import landingBgImage from "@assets/image_1752358072631.png";
+import landingBgImage from "@assets/image_1752358147559.png";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
