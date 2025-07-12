@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { insertBioSchema, insertUserSchema, users } from "@shared/schema";
 import { ZodError } from "zod";
 import { db } from "./db";
@@ -23,8 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const user = req.user;
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -35,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.post('/api/users/username', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { username } = insertUserSchema.parse(req.body);
       
       if (!username) {
@@ -51,10 +50,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.upsertUser({
         id: userId,
         username,
-        email: req.user.claims.email,
-        firstName: req.user.claims.first_name,
-        lastName: req.user.claims.last_name,
-        profileImageUrl: req.user.claims.profile_image_url,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        profileImageUrl: req.user.profileImageUrl,
       });
 
       res.json(user);
@@ -70,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bio routes
   app.get('/api/bios/me', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const bio = await storage.getBioByUserId(userId);
       res.json(bio);
     } catch (error) {
@@ -81,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/bios', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const bioData = insertBioSchema.parse({
         ...req.body,
         userId,
@@ -127,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Delete user account route
   app.delete('/api/users/account', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Delete user's bio first
       const existingBio = await storage.getBioByUserId(userId);
@@ -167,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       let user = await storage.getUser(userId);
 
       if (!user) {
