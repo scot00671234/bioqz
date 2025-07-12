@@ -203,12 +203,45 @@ export default function Subscribe() {
               </Elements>
             ) : (
               <Card className="w-full max-w-md mx-auto">
-                <CardContent className="pt-6 text-center">
-                  <p className="text-gray-600 mb-4">Payment processing is not available in development mode.</p>
-                  <Button onClick={() => navigate("/dashboard")} variant="outline">
+                <CardHeader className="text-center">
+                  <CardTitle className="flex items-center justify-center text-brand-700">
+                    <Crown className="h-6 w-6 mr-2" />
+                    Try Pro Features
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6 text-center space-y-4">
+                  <p className="text-gray-600 mb-4">
+                    Stripe payment processing is not configured yet, but you can try all Pro features in demo mode!
+                  </p>
+                  <Button 
+                    onClick={async () => {
+                      try {
+                        const res = await apiRequest("POST", "/api/activate-demo-mode");
+                        if (res.ok) {
+                          navigate("/dashboard?demo=true");
+                        }
+                      } catch (error) {
+                        console.error("Error activating demo mode:", error);
+                      }
+                    }}
+                    className="w-full bg-brand-600 hover:bg-brand-700"
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Activate Demo Mode
+                  </Button>
+                  <Button onClick={() => navigate("/dashboard")} variant="outline" className="w-full">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Dashboard
                   </Button>
+                  <div className="text-sm text-gray-500 mt-4">
+                    <p>Demo mode gives you full access to:</p>
+                    <ul className="list-disc list-inside text-left mt-2">
+                      <li>Unlimited links</li>
+                      <li>Custom themes</li>
+                      <li>Analytics dashboard</li>
+                      <li>Priority support</li>
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             )}

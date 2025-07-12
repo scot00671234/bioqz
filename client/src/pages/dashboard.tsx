@@ -129,6 +129,28 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Demo Mode Banner */}
+        {user?.isDemoMode && (
+          <Card className="mb-8 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Crown className="h-6 w-6 text-yellow-600 mr-3" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-yellow-800">Demo Mode Active</h3>
+                    <p className="text-yellow-700">You have access to all Pro features! Add your Stripe keys to enable real payments.</p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => navigate("/settings")}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  Configure Stripe
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         {/* Your Bio Link Section */}
         {user?.username && (
           <Card className="mb-8 shadow-lg warm-shadow border-brand-200 bg-gradient-to-r from-brand-50 to-purple-50">

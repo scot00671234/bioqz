@@ -168,6 +168,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Demo mode activation route
+  app.post('/api/activate-demo-mode', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.upsertUser({
+        id: userId,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        profileImageUrl: req.user.profileImageUrl,
+        isDemoMode: true,
+        isPaid: true, // Enable Pro features in demo mode
+      });
+
+      res.json({ message: "Demo mode activated", user });
+    } catch (error: any) {
+      console.error("Error activating demo mode:", error);
+      res.status(500).json({ message: "Failed to activate demo mode" });
+    }
+  });
+
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {

@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "is_demo_mode" boolean DEFAULT false;
