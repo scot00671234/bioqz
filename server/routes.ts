@@ -174,15 +174,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/upgrade-to-pro', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const user = await storage.upsertUser({
-        id: userId,
-        email: req.user.email,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        username: req.user.username,
-        profileImageUrl: req.user.profileImageUrl,
-        isPaid: true, // Enable Pro features
-      });
+      
+      // Use SQL to directly update the user's paid status
+      await db.update(users).set({ isPaid: true }).where(eq(users.id, userId));
+      
+      // Get the updated user
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
 
       res.json({ message: "Pro features activated", user });
     } catch (error: any) {
