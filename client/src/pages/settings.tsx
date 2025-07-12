@@ -86,7 +86,7 @@ export default function Settings() {
   };
 
   const handleUpgrade = () => {
-    navigate("/subscribe");
+    navigate("/pro-features");
   };
 
   if (isLoading) {
