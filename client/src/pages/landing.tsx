@@ -166,7 +166,7 @@ export default function Landing() {
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>Up to 5 links</span>
+                    <span>1 link only</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
@@ -210,11 +210,11 @@ export default function Landing() {
                   </li>
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>Remove QuickBio branding</span>
+                    <span>No branding</span>
                   </li>
                 </ul>
                 <Button 
-                  onClick={handleGetStarted} 
+                  onClick={() => navigate("/subscribe")} 
                   className="w-full bg-brand-600 text-white hover:bg-brand-700"
                 >
                   Upgrade to Pro
