@@ -13,16 +13,25 @@ import {
   Shield, 
   Globe,
   Star,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  Image,
+  Users,
+  Settings,
+  Moon,
+  Sun,
+  Heart
 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProFeatures() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [selectedTheme, setSelectedTheme] = useState("gradient");
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -36,11 +45,8 @@ export default function ProFeatures() {
     }
   }, [isAuthenticated, isLoading, navigate, toast]);
 
-  const handleGetPro = () => {
-    navigate("/subscribe");
-  };
-
   const handleUpgradeToPro = async () => {
+    setIsUpgrading(true);
     try {
       const response = await fetch("/api/upgrade-to-pro", {
         method: "POST",
@@ -62,12 +68,68 @@ export default function ProFeatures() {
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to upgrade to Pro. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsUpgrading(false);
     }
   };
+
+  const themes = [
+    { name: "Gradient", id: "gradient", colors: "from-purple-500 to-pink-500" },
+    { name: "Ocean", id: "ocean", colors: "from-blue-500 to-teal-500" },
+    { name: "Sunset", id: "sunset", colors: "from-orange-500 to-red-500" },
+    { name: "Forest", id: "forest", colors: "from-green-500 to-emerald-500" },
+    { name: "Midnight", id: "midnight", colors: "from-gray-800 to-gray-900" },
+    { name: "Rose Gold", id: "rose", colors: "from-pink-400 to-yellow-400" }
+  ];
+
+  const proFeatures = [
+    {
+      icon: <Link className="h-6 w-6" />,
+      title: "Unlimited Links",
+      description: "Add as many links as you want to your bio page",
+      current: "1 link limit",
+      pro: "Unlimited links"
+    },
+    {
+      icon: <Palette className="h-6 w-6" />,
+      title: "Custom Themes",
+      description: "Choose from beautiful themes or create your own design",
+      current: "Default theme only",
+      pro: "20+ premium themes"
+    },
+    {
+      icon: <BarChart3 className="h-6 w-6" />,
+      title: "Advanced Analytics",
+      description: "Track clicks, views, and engagement with detailed insights",
+      current: "Basic stats",
+      pro: "Detailed analytics dashboard"
+    },
+    {
+      icon: <Globe className="h-6 w-6" />,
+      title: "Custom Domain",
+      description: "Use your own domain name for your bio page",
+      current: "bioqz.com/username",
+      pro: "yourdomain.com"
+    },
+    {
+      icon: <Image className="h-6 w-6" />,
+      title: "Custom Backgrounds",
+      description: "Upload your own background images and videos",
+      current: "Standard backgrounds",
+      pro: "Custom backgrounds & videos"
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      title: "Priority Support",
+      description: "Get priority email support and feature requests",
+      current: "Community support",
+      pro: "Priority email support"
+    }
+  ];
 
   if (isLoading) {
     return (
@@ -77,171 +139,198 @@ export default function ProFeatures() {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (user?.isPaid) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-purple-50">
+        {/* Header */}
+        <div className="bg-white border-b border-brand-200 shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/dashboard")}
+                  className="text-brand-600 hover:text-brand-700"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+                <div className="hidden sm:block w-px h-6 bg-brand-200"></div>
+                <h1 className="text-2xl font-bold text-brand-900">Pro Features</h1>
+                <Badge variant="default" className="bg-brand-600 text-white">Pro Member</Badge>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  const features = [
-    {
-      icon: Link,
-      title: "Unlimited Links",
-      description: "Add as many links as you want to your bio page",
-      free: "1 link",
-      pro: "Unlimited"
-    },
-    {
-      icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Track clicks, views, and engagement with detailed insights",
-      free: "Basic stats",
-      pro: "Full analytics"
-    },
-    {
-      icon: Palette,
-      title: "Custom Themes",
-      description: "Personalize your bio with custom colors and styles",
-      free: "1 theme",
-      pro: "All themes"
-    },
-    {
-      icon: Globe,
-      title: "Custom Domain",
-      description: "Use your own domain for your bio page",
-      free: "bioqz.com subdomain",
-      pro: "Custom domain"
-    },
-    {
-      icon: Shield,
-      title: "Priority Support",
-      description: "Get help when you need it with dedicated support",
-      free: "Community support",
-      pro: "Priority support"
-    },
-    {
-      icon: Zap,
-      title: "Advanced Features",
-      description: "Access to beta features and premium integrations",
-      free: "Basic features",
-      pro: "Premium features"
-    }
-  ];
+        {/* Pro Member Content */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-600 rounded-full mb-4">
+              <Crown className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-brand-900 mb-2">You're a Pro Member!</h2>
+            <p className="text-lg text-gray-600">Enjoy all the premium features below</p>
+          </div>
+
+          {/* Theme Selector */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Palette className="h-5 w-5 mr-2" />
+                Choose Your Theme
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {themes.map((theme) => (
+                  <button
+                    key={theme.id}
+                    onClick={() => setSelectedTheme(theme.id)}
+                    className={`relative p-4 rounded-lg border-2 transition-all ${
+                      selectedTheme === theme.id
+                        ? "border-brand-600 shadow-lg"
+                        : "border-gray-200 hover:border-brand-300"
+                    }`}
+                  >
+                    <div className={`w-full h-16 rounded-md bg-gradient-to-r ${theme.colors} mb-2`}></div>
+                    <div className="text-sm font-medium text-center">{theme.name}</div>
+                    {selectedTheme === theme.id && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center">
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <Button className="mt-4 bg-brand-600 hover:bg-brand-700">
+                Apply Theme
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {proFeatures.map((feature, index) => (
+              <Card key={index} className="border-brand-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-brand-700">
+                    {feature.icon}
+                    <span className="ml-2">{feature.title}</span>
+                    <Badge className="ml-auto bg-green-100 text-green-800">Active</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{feature.description}</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm">
+                      <Check className="h-4 w-4 text-green-500 mr-2" />
+                      <span className="text-green-700 font-medium">{feature.pro}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-purple-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-white border-b border-brand-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/dashboard")}
-                className="mr-4"
+                className="text-brand-600 hover:text-brand-700"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
-              <h1 className="text-2xl font-bold text-brand-600">bioqz Pro</h1>
+              <div className="hidden sm:block w-px h-6 bg-brand-200"></div>
+              <h1 className="text-2xl font-bold text-brand-900">Upgrade to Pro</h1>
             </div>
-            {user?.isPaid ? (
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <Crown className="h-4 w-4 mr-1" />
-                Pro Member
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                Free Plan
-              </Badge>
-            )}
           </div>
         </div>
       </div>
 
+      {/* Hero Section */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-600 rounded-full mb-6">
-            <Crown className="h-8 w-8 text-white" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-brand-600 to-purple-600 rounded-full mb-6">
+            <Crown className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Unlock the Full Power of <span className="text-brand-600">bioqz</span>
+          <h2 className="text-4xl font-bold text-brand-900 mb-4">
+            Unlock Premium Features
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Take your bio page to the next level with unlimited links, advanced analytics, and premium features.
+            Take your bio page to the next level with Pro features. Unlimited links, custom themes, analytics, and more.
           </p>
         </div>
 
-        {/* Current Status Card */}
-        {user?.isPaid ? (
-          <Card className="mb-12 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-center text-center">
-                <div className="flex items-center">
-                  <Crown className="h-8 w-8 text-green-600 mr-3" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-green-800">You're a Pro Member!</h3>
-                    <p className="text-green-700">
-                      You have access to all premium features.
-                    </p>
-                  </div>
-                </div>
+        {/* Pricing Card */}
+        <div className="max-w-md mx-auto mb-12">
+          <Card className="border-brand-200 shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-600 to-purple-600"></div>
+            <CardHeader className="text-center pb-4">
+              <div className="flex items-center justify-center mb-2">
+                <Crown className="h-6 w-6 text-brand-600 mr-2" />
+                <CardTitle className="text-2xl text-brand-900">Pro Plan</CardTitle>
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-12 bg-gradient-to-r from-brand-50 to-purple-50 border-brand-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Star className="h-8 w-8 text-brand-600 mr-3" />
-                  <div>
-                    <h3 className="text-2xl font-bold text-brand-800">Ready to Upgrade?</h3>
-                    <p className="text-brand-700">
-                      Join thousands of creators who've upgraded to Pro
-                    </p>
-                  </div>
-                </div>
-                <div className="flex space-x-4">
-                  <Button
-                    onClick={handleUpgradeToPro}
-                    className="bg-brand-600 hover:bg-brand-700 text-white"
-                  >
-                    <Crown className="h-4 w-4 mr-2" />
-                    Get Pro - $9/month
-                  </Button>
-                </div>
+              <div className="text-4xl font-bold text-brand-900">
+                $9<span className="text-lg font-normal text-gray-600">/month</span>
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {features.map((feature, index) => (
-            <Card key={index} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button
+                onClick={handleUpgradeToPro}
+                disabled={isUpgrading}
+                className="w-full bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-700 hover:to-purple-700 text-white py-3 text-lg font-semibold"
+              >
+                {isUpgrading ? (
                   <div className="flex items-center">
-                    <div className="bg-brand-100 p-3 rounded-lg mr-4">
-                      <feature.icon className="h-6 w-6 text-brand-600" />
-                    </div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Activating...
                   </div>
-                  {user?.isPaid && (
-                    <Check className="h-5 w-5 text-green-500" />
-                  )}
-                </div>
+                ) : (
+                  <>
+                    <Crown className="h-5 w-5 mr-2" />
+                    Get Pro - $9/month
+                  </>
+                )}
+              </Button>
+              <p className="text-sm text-gray-500 mt-3">
+                Instant access • Cancel anytime
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Features Comparison */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {proFeatures.map((feature, index) => (
+            <Card key={index} className="border-brand-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center text-brand-700">
+                  {feature.icon}
+                  <span className="ml-2">{feature.title}</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">{feature.description}</p>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Free:</span>
-                    <span className="text-gray-700">{feature.free}</span>
+                  <div className="flex items-center text-sm">
+                    <span className="text-gray-500 mr-2">Free:</span>
+                    <span className="text-gray-600">{feature.current}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-brand-600 font-semibold">Pro:</span>
-                    <span className="text-brand-700 font-semibold">{feature.pro}</span>
+                  <div className="flex items-center text-sm">
+                    <Check className="h-4 w-4 text-brand-600 mr-2" />
+                    <span className="text-brand-700 font-medium">{feature.pro}</span>
                   </div>
                 </div>
               </CardContent>
@@ -249,144 +338,57 @@ export default function ProFeatures() {
           ))}
         </div>
 
-        {/* Pricing Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-16">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h3>
-            <p className="text-gray-600">Choose the plan that's right for you</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Plan */}
-            <Card className="border-2 border-gray-200">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Free</CardTitle>
-                <div className="text-4xl font-bold text-gray-900 mt-4">$0</div>
-                <p className="text-gray-600">Forever</p>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>1 link</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Basic analytics</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>bioqz.com subdomain</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Community support</span>
-                  </li>
-                </ul>
-                <Button className="w-full mt-6" variant="outline" disabled>
-                  Current Plan
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Pro Plan */}
-            <Card className="border-2 border-brand-600 relative">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-brand-600 text-white">
-                  <Crown className="h-4 w-4 mr-1" />
-                  Most Popular
-                </Badge>
-              </div>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-brand-600">Pro</CardTitle>
-                <div className="text-4xl font-bold text-brand-600 mt-4">$9</div>
-                <p className="text-gray-600">per month</p>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Unlimited links</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Advanced analytics</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Custom themes</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Custom domain</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Priority support</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Premium features</span>
-                  </li>
-                </ul>
-                
-                {!user?.isPaid && (
-                  <Button
-                    onClick={handleUpgradeToPro}
-                    className="w-full mt-6 bg-brand-600 hover:bg-brand-700 text-white"
-                  >
-                    <Crown className="h-4 w-4 mr-2" />
-                    Get Pro - $9/month
-                  </Button>
-                )}
-                
-                {user?.isPaid && (
-                  <Button className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white" disabled>
-                    <Check className="h-4 w-4 mr-2" />
-                    Current Plan
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <Card className="shadow-lg">
+        {/* Theme Preview */}
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Frequently Asked Questions</CardTitle>
+            <CardTitle className="flex items-center">
+              <Sparkles className="h-5 w-5 mr-2" />
+              Preview: Custom Themes
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h4 className="font-semibold text-lg mb-2">What Pro features do I get?</h4>
-              <p className="text-gray-600">
-                Pro includes unlimited links, advanced analytics, custom themes, custom domains, 
-                priority support, and access to premium integrations.
-              </p>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {themes.map((theme, index) => (
+                <div key={index} className="text-center">
+                  <div className={`w-full h-16 rounded-md bg-gradient-to-r ${theme.colors} mb-2 shadow-md`}></div>
+                  <div className="text-sm font-medium text-gray-700">{theme.name}</div>
+                </div>
+              ))}
             </div>
-            <div>
-              <h4 className="font-semibold text-lg mb-2">Can I cancel anytime?</h4>
-              <p className="text-gray-600">
-                Yes! You can cancel your Pro subscription at any time. Your Pro features 
-                will remain active until the end of your billing period.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-lg mb-2">What happens to my data if I cancel?</h4>
-              <p className="text-gray-600">
-                Your bio page and links will remain active, but you'll be limited to 1 link 
-                and basic features. Your data is never deleted.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-lg mb-2">Do you offer refunds?</h4>
-              <p className="text-gray-600">
-                We offer a 7-day money-back guarantee. If you're not satisfied, 
-                contact us within 7 days for a full refund.
+            <div className="mt-4 p-4 bg-brand-50 rounded-lg border border-brand-200">
+              <p className="text-sm text-brand-700">
+                <Crown className="h-4 w-4 inline mr-1" />
+                Pro members get access to all themes plus the ability to customize colors and upload custom backgrounds.
               </p>
             </div>
           </CardContent>
         </Card>
+
+        {/* CTA Section */}
+        <div className="text-center bg-gradient-to-r from-brand-600 to-purple-600 rounded-2xl p-8 text-white">
+          <h3 className="text-2xl font-bold mb-4">Ready to upgrade?</h3>
+          <p className="text-brand-100 mb-6 max-w-2xl mx-auto">
+            Join thousands of creators who have upgraded to Pro and transformed their bio pages into powerful marketing tools.
+          </p>
+          <Button
+            onClick={handleUpgradeToPro}
+            disabled={isUpgrading}
+            size="lg"
+            className="bg-white text-brand-600 hover:bg-gray-100 font-semibold"
+          >
+            {isUpgrading ? (
+              <div className="flex items-center">
+                <div className="animate-spin w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full mr-2" />
+                Activating...
+              </div>
+            ) : (
+              <>
+                <Crown className="h-5 w-5 mr-2" />
+                Start Your Pro Journey
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

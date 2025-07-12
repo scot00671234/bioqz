@@ -49,14 +49,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username already taken" });
       }
 
-      const user = await storage.upsertUser({
-        id: userId,
-        username,
-        email: req.user.email,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        profileImageUrl: req.user.profileImageUrl,
-      });
+      // Use direct SQL update to avoid constraint issues
+      await db.update(users).set({ username }).where(eq(users.id, userId));
+      
+      // Get the updated user
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
 
       res.json(user);
     } catch (error) {
