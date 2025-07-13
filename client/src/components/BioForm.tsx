@@ -183,20 +183,31 @@ export default function BioForm({ bio }: BioFormProps) {
 
   const onSubmit = async (data: BioFormData) => {
     try {
+      console.log("🔄 Starting bio save process with data:", { 
+        username: data.username, 
+        currentUsername: user?.username 
+      });
+      
       // Update username if changed
       if (data.username !== user?.username) {
+        console.log(`🔄 Updating username from ${user?.username} to ${data.username}`);
         await usernameMutation.mutateAsync(data.username);
+        console.log("✅ Username updated successfully");
+      } else {
+        console.log("ℹ️ Username unchanged, skipping username update");
       }
 
       // Filter out empty links
       const validLinks = links.filter(link => link.title && link.url);
       
       // Create/update bio
+      console.log("🔄 Saving bio data...");
       await bioMutation.mutateAsync({
         ...data,
         links: validLinks,
         profilePicture,
       });
+      console.log("✅ Bio saved successfully");
 
       // Show success message and navigate to the bio page
       toast({
@@ -210,7 +221,12 @@ export default function BioForm({ bio }: BioFormProps) {
       }, 1000);
       
     } catch (error) {
-      console.error("Failed to save bio:", error);
+      console.error("❌ Failed to save bio:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save bio. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

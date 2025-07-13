@@ -39,6 +39,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const { username } = insertUserSchema.parse(req.body);
       
+      console.log(`🔄 Username update request: ${userId} -> ${username}`);
+      
       if (!username) {
         return res.status(400).json({ message: "Username is required" });
       }
@@ -46,14 +48,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if username is already taken
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser && existingUser.id !== userId) {
+        console.log(`❌ Username ${username} is already taken by user ${existingUser.id}`);
         return res.status(400).json({ message: "Username already taken" });
       }
 
       // Use direct SQL update to avoid constraint issues
-      await db.update(users).set({ username }).where(eq(users.id, userId));
+      await db.update(users).set({ 
+        username,
+        updatedAt: new Date()
+      }).where(eq(users.id, userId));
       
       // Get the updated user
       const [user] = await db.select().from(users).where(eq(users.id, userId));
+      
+      console.log(`✅ Username updated successfully: ${userId} -> ${user.username}`);
 
       res.json(user);
     } catch (error) {
