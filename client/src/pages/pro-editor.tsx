@@ -35,10 +35,10 @@ export default function ProEditor() {
 
   // Redirect to dashboard if user is not pro
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !user?.isPro) {
+    if (!isLoading && isAuthenticated && !user?.isPaid) {
       navigate("/");
     }
-  }, [isAuthenticated, isLoading, user?.isPro, navigate]);
+  }, [isAuthenticated, isLoading, user?.isPaid, navigate]);
 
   const { data: bio } = useQuery<Bio | null>({
     queryKey: ["/api/bios/me"],
@@ -97,7 +97,7 @@ export default function ProEditor() {
     );
   }
 
-  if (!isAuthenticated || !user?.isPro) {
+  if (!isAuthenticated || !user?.isPaid) {
     return null;
   }
 
