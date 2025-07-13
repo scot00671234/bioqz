@@ -26,6 +26,11 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Added visual previews for color schemes and layouts in Pro Theme Editor
 - Implemented layout-specific button styling (default, cards, minimal, gradient)
 - Added custom CSS support for advanced Pro customization
+- Enhanced Pro Theme Editor with font and typography customization options
+- Added Google Fonts support for 6 font families (Inter, Poppins, Roboto, Playfair Display, Montserrat, Open Sans)
+- Created ColorSchemeSelector component for Pro users with floating color picker in bottom right corner
+- Implemented font size control (small, medium, large, extra large) for Pro users
+- Added typography preview in Pro Theme Editor showing font changes in real-time
 
 ### Replit Migration & Pro Editor (July 2025)
 - Successfully migrated project from Replit Agent to standard Replit environment

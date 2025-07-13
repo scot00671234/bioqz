@@ -60,8 +60,33 @@ export default function BioCard({ bio, username }: BioCardProps) {
     gradient: "w-full text-white py-3 h-auto rounded-lg bg-gradient-to-r transition-all duration-200 hover:shadow-lg"
   };
 
+  // Typography settings
+  const fontOptions = {
+    inter: "'Inter', sans-serif",
+    poppins: "'Poppins', sans-serif",
+    roboto: "'Roboto', sans-serif",
+    playfair: "'Playfair Display', serif",
+    montserrat: "'Montserrat', sans-serif",
+    opensans: "'Open Sans', sans-serif"
+  };
+
+  const fontSizes = {
+    small: "14px",
+    medium: "16px",
+    large: "18px",
+    xlarge: "20px"
+  };
+
+  const fontFamily = fontOptions[bio.theme?.fontFamily as keyof typeof fontOptions] || fontOptions.inter;
+  const fontSize = fontSizes[bio.theme?.fontSize as keyof typeof fontSizes] || fontSizes.medium;
+
+  const typographyStyle = {
+    fontFamily,
+    fontSize
+  };
+
   return (
-    <Card className={layoutClasses[layout as keyof typeof layoutClasses]} style={cardStyle}>
+    <Card className={layoutClasses[layout as keyof typeof layoutClasses]} style={{...cardStyle, ...typographyStyle}}>
       <CardContent className="p-8 text-center">
         {/* Custom CSS */}
         {bio.customCss && (

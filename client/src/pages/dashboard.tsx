@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import BioForm from "@/components/BioForm";
+import ColorSchemeSelector from "@/components/ColorSchemeSelector";
 import { useLocation } from "wouter";
 import type { Bio } from "../../../shared/schema";
 
@@ -309,6 +310,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Color Scheme Selector - Pro only */}
+      <ColorSchemeSelector 
+        user={user} 
+        bio={bio} 
+        onUpdate={() => queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] })}
+      />
     </div>
   );
 }

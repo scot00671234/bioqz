@@ -78,11 +78,53 @@ const layouts = {
   }
 };
 
+const fontOptions = {
+  inter: {
+    name: "Inter",
+    family: "'Inter', sans-serif",
+    description: "Modern and clean"
+  },
+  poppins: {
+    name: "Poppins",
+    family: "'Poppins', sans-serif",
+    description: "Friendly and rounded"
+  },
+  roboto: {
+    name: "Roboto",
+    family: "'Roboto', sans-serif",
+    description: "Google's material design"
+  },
+  playfair: {
+    name: "Playfair Display",
+    family: "'Playfair Display', serif",
+    description: "Elegant serif font"
+  },
+  montserrat: {
+    name: "Montserrat",
+    family: "'Montserrat', sans-serif",
+    description: "Geometric and modern"
+  },
+  opensans: {
+    name: "Open Sans",
+    family: "'Open Sans', sans-serif",
+    description: "Readable and versatile"
+  }
+};
+
+const fontSizes = {
+  small: { name: "Small", size: "14px" },
+  medium: { name: "Medium", size: "16px" },
+  large: { name: "Large", size: "18px" },
+  xlarge: { name: "Extra Large", size: "20px" }
+};
+
 export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
   const [colorScheme, setColorScheme] = useState(bio?.colorScheme || "default");
   const [layout, setLayout] = useState(bio?.layout || "default");
   const [customCss, setCustomCss] = useState(bio?.customCss || "");
   const [theme, setTheme] = useState(bio?.theme || {});
+  const [fontFamily, setFontFamily] = useState(bio?.theme?.fontFamily || "inter");
+  const [fontSize, setFontSize] = useState(bio?.theme?.fontSize || "medium");
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -92,7 +134,9 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
       customCss,
       theme: {
         ...theme,
-        colors: colorSchemes[colorScheme as keyof typeof colorSchemes]
+        colors: colorSchemes[colorScheme as keyof typeof colorSchemes],
+        fontFamily,
+        fontSize
       }
     };
     
@@ -128,7 +172,7 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
       </div>
 
       <Tabs defaultValue="colors" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="colors">
             <Palette className="h-4 w-4 mr-2" />
             Colors
@@ -136,6 +180,10 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
           <TabsTrigger value="layout">
             <Layout className="h-4 w-4 mr-2" />
             Layout
+          </TabsTrigger>
+          <TabsTrigger value="typography">
+            <span className="text-sm mr-2">Aa</span>
+            Typography
           </TabsTrigger>
           <TabsTrigger value="custom">
             <Code className="h-4 w-4 mr-2" />
@@ -267,6 +315,71 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
                 <Badge variant="outline" className="mt-2">
                   {layouts[layout as keyof typeof layouts].name}
                 </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="typography" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Font & Typography</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="fontFamily">Font Family</Label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select font family" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(fontOptions).map(([key, font]) => (
+                      <SelectItem key={key} value={key}>
+                        <div>
+                          <div className="font-medium" style={{ fontFamily: font.family }}>
+                            {font.name}
+                          </div>
+                          <div className="text-sm text-gray-500">{font.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="fontSize">Font Size</Label>
+                <Select value={fontSize} onValueChange={setFontSize}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select font size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(fontSizes).map(([key, size]) => (
+                      <SelectItem key={key} value={key}>
+                        <span style={{ fontSize: size.size }}>
+                          {size.name} ({size.size})
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Typography Preview */}
+              <div className="mt-4 p-4 rounded-lg border" style={{
+                backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].background,
+                color: colorSchemes[colorScheme as keyof typeof colorSchemes].text,
+                fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes].size
+              }}>
+                <h4 className="font-semibold mb-2">Typography Preview</h4>
+                <h5 className="text-lg font-bold mb-2">Your Name</h5>
+                <p className="mb-3 opacity-80">
+                  This is how your bio description will appear with the selected font and size.
+                </p>
+                <div className="text-sm">
+                  The quick brown fox jumps over the lazy dog. 1234567890
+                </div>
               </div>
             </CardContent>
           </Card>
