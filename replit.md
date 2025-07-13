@@ -6,6 +6,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (January 2025)
 
+### Replit Migration & Pro Editor (July 2025)
+- Successfully migrated project from Replit Agent to standard Replit environment
+- Set up PostgreSQL database with automatic migrations
+- Created dedicated Pro Editor page (/pro-editor) with enhanced features for Pro users
+- Removed View Bio button from dashboard header as requested
+- Added Pro Editor access buttons in dashboard for Pro users
+- Enhanced Pro user experience with unlimited links and advanced editing capabilities
+
 ### Email Verification System (July 2025)
 - Implemented complete email verification system using Gmail SMTP via Nodemailer
 - Added email verification fields to user database schema (emailVerified, emailVerificationToken, emailVerificationExpires)

@@ -90,15 +90,6 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <Button
-                onClick={handleViewBio}
-                variant="ghost"
-                className="text-brand-600 hover:text-brand-700"
-                disabled={!user?.username}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View Bio
-              </Button>
-              <Button
                 onClick={handleSettings}
                 variant="ghost"
                 className="text-gray-600 hover:text-gray-700"
@@ -197,7 +188,18 @@ export default function Dashboard() {
           <div className="lg:col-span-2 animate-slide-up">
             <Card className="shadow-lg warm-shadow">
               <CardHeader>
-                <CardTitle className="text-brand-700">Edit Your Bio</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-brand-700">Edit Your Bio</CardTitle>
+                  {user?.isPaid && (
+                    <Button
+                      onClick={() => navigate("/pro-editor")}
+                      className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600"
+                    >
+                      <Crown className="h-4 w-4 mr-2" />
+                      Pro Editor
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <BioForm bio={bio} />
@@ -233,6 +235,15 @@ export default function Dashboard() {
                     >
                       <Crown className="h-4 w-4 mr-2" />
                       Upgrade to Pro
+                    </Button>
+                  )}
+                  {user?.isPaid && (
+                    <Button
+                      onClick={() => navigate("/pro-editor")}
+                      className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 warm-shadow"
+                    >
+                      <Crown className="h-4 w-4 mr-2" />
+                      Pro Editor
                     </Button>
                   )}
                 </div>
