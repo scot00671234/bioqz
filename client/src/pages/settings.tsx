@@ -18,7 +18,7 @@ export default function Settings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
-  const [customDomain, setCustomDomain] = useState("");
+
   const [stripePublicKey, setStripePublicKey] = useState("");
   const [stripeSecretKey, setStripeSecretKey] = useState("");
 
@@ -276,34 +276,7 @@ export default function Settings() {
 
 
 
-          {/* Custom Domain (Pro Only) */}
-          {user?.isPaid && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Custom Domain</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="domain">Custom Domain</Label>
-                  <Input
-                    id="domain"
-                    placeholder="yourdomain.com"
-                    value={customDomain}
-                    onChange={(e) => setCustomDomain(e.target.value)}
-                  />
-                  <p className="text-sm text-gray-500 mt-2">
-                    Connect your own domain to your bio page (coming soon)
-                  </p>
-                </div>
-                <Button 
-                  disabled 
-                  className="bg-gray-300 text-gray-500 cursor-not-allowed"
-                >
-                  Save Domain (Coming Soon)
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+
 
           {/* Bio Statistics */}
           <Card>
