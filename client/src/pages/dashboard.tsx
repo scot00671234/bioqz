@@ -98,8 +98,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-brand-600 mr-8 animate-bounce-subtle">bioqz</h1>
-              <span className="text-gray-600">Dashboard</span>
+              <h1 className="text-2xl font-bold text-brand-600">bioqz</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button

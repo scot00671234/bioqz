@@ -18,6 +18,8 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Implemented subscription cancellation functionality with Stripe integration
 - Added cancel subscription button in settings page for Pro users
 - Created cancelUserSubscription storage method and API endpoint
+- Removed bouncing animation from bioqz logo in dashboard header
+- Removed "Dashboard" text from header for cleaner design
 
 ### Replit Migration & Pro Editor (July 2025)
 - Successfully migrated project from Replit Agent to standard Replit environment
