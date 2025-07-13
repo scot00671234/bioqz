@@ -12,7 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { registerSchema, loginSchema, type RegisterData, type LoginData } from "@shared/schema";
-import { Loader2, Mail, Lock, User, Chrome } from "lucide-react";
+import { Loader2, Mail, Lock, User } from "lucide-react";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -97,9 +97,7 @@ export default function AuthPage() {
     },
   });
 
-  const handleGoogleSignIn = () => {
-    window.location.href = "/api/auth/google";
-  };
+
 
   const onLoginSubmit = (data: LoginData) => {
     loginMutation.mutate(data);
@@ -183,25 +181,6 @@ export default function AuthPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Google Sign-In Button */}
-              <Button
-                variant="outline"
-                onClick={handleGoogleSignIn}
-                className="w-full"
-                type="button"
-              >
-                <Chrome className="mr-2 h-4 w-4" />
-                Continue with Google
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-muted-foreground">Or continue with email</span>
-                </div>
-              </div>
 
               {/* Email Form */}
               {isLogin ? (
