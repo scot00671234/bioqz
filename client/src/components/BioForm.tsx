@@ -86,8 +86,10 @@ export default function BioForm({ bio }: BioFormProps) {
 
   const bioMutation = useMutation({
     mutationFn: async (data: BioFormData & { links: LinkFormData[], profilePicture?: string }) => {
+      // Extract username from data and only send bio-related fields
+      const { username, ...bioData } = data;
       const bioResponse = await apiRequest("/api/bios", "POST", {
-        ...data,
+        ...bioData,
         profilePicture,
       });
       if (!bioResponse.ok) {
