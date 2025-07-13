@@ -62,13 +62,14 @@ export default function ProEditor() {
   }, [bio]);
 
   const handleViewBio = () => {
-    // Check if user has a username to access the bio
-    if (user?.username) {
-      window.open(`/${user.username}`, '_blank');
+    // Get the current username from the form or user data
+    const currentUsername = user?.username;
+    if (currentUsername) {
+      window.open(`/${currentUsername}`, '_blank');
     } else {
       toast({
         title: "Username Required",
-        description: "You need to set a username in your dashboard to view your live bio page.",
+        description: "You need to set a username first to view your live bio page.",
         variant: "destructive",
       });
     }

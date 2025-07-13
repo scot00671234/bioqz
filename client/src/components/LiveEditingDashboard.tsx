@@ -142,23 +142,63 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
     }));
   }, [watchedName, watchedDescription, watchedUsername, watchedAvatarUrl, watchedColorScheme, links, profilePicture, user?.firstName]);
 
+  const usernameMutation = useMutation({
+    mutationFn: async (username: string) => {
+      const response = await apiRequest("/api/users/username", "POST", { username });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update username");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      const message = error.message || "Failed to update username";
+      const isUsernameTaken = message.includes("already taken");
+      
+      toast({
+        title: isUsernameTaken ? "Username Taken" : "Error",
+        description: isUsernameTaken 
+          ? "This username is already taken. Please choose a different one."
+          : message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const saveMutation = useMutation({
-    mutationFn: async (data: BioFormData) => {
-      const bioData = {
-        ...data,
+    mutationFn: async (data: BioFormData & { links: LinkFormData[], profilePicture?: string }) => {
+      // Extract username from data and only send bio-related fields
+      const { username, ...bioData } = data;
+      const bioResponse = await apiRequest("/api/bios", "POST", {
+        ...bioData,
         links,
         profilePicture,
         layout: bio?.layout || "default",
         theme: bio?.theme || {}
-      };
-      return apiRequest("/api/bios", "POST", bioData);
+      });
+      if (!bioResponse.ok) {
+        const error = await bioResponse.json();
+        throw new Error(error.message || "Failed to save bio");
+      }
+      return bioResponse.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
-      toast({
-        title: "Bio saved!",
-        description: "Your bio has been updated successfully.",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -177,8 +217,48 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
     },
   });
 
-  const onSubmit = (data: BioFormData) => {
-    saveMutation.mutate(data);
+  const onSubmit = async (data: BioFormData) => {
+    try {
+      console.log("🔄 Starting bio save process with data:", { 
+        username: data.username, 
+        currentUsername: user?.username 
+      });
+      
+      // Update username if changed
+      if (data.username !== user?.username) {
+        console.log(`🔄 Updating username from ${user?.username} to ${data.username}`);
+        await usernameMutation.mutateAsync(data.username);
+        console.log("✅ Username updated successfully");
+      } else {
+        console.log("ℹ️ Username unchanged, skipping username update");
+      }
+
+      // Filter out empty links
+      const validLinks = links.filter(link => link.title && link.url);
+      
+      // Create/update bio
+      console.log("🔄 Saving bio data...");
+      await saveMutation.mutateAsync({
+        ...data,
+        links: validLinks,
+        profilePicture,
+      });
+      console.log("✅ Bio saved successfully");
+
+      // Show success message
+      toast({
+        title: "Success!",
+        description: `Your bio is now live at bioqz.com/${data.username}`,
+      });
+      
+    } catch (error) {
+      console.error("❌ Failed to save bio:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save bio. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const addLink = () => {
@@ -454,25 +534,49 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
               <Eye className="h-5 w-5 mr-2" />
               Live Preview
             </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const username = form.watch("username") || livePreview.username;
-                if (!username) {
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const username = form.watch("username") || livePreview.username;
+                  if (!username) {
+                    toast({
+                      title: "Username Required",
+                      description: "Please set a username first to copy the link.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  navigator.clipboard.writeText(`${window.location.origin}/${username}`);
                   toast({
-                    title: "Username Required",
-                    description: "Please set a username first to view your live bio.",
-                    variant: "destructive",
+                    title: "Link Copied!",
+                    description: `Your bio link has been copied to clipboard.`,
                   });
-                  return;
-                }
-                window.open(`/${username}`, '_blank');
-              }}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Open Live Bio
-            </Button>
+                }}
+              >
+                Copy Link
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const username = form.watch("username") || livePreview.username;
+                  if (!username) {
+                    toast({
+                      title: "Username Required",
+                      description: "Please set a username first to view your live bio.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  window.open(`/${username}`, '_blank');
+                }}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Live Bio
+              </Button>
+            </div>
           </div>
         </div>
 
