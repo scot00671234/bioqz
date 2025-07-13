@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, ExternalLink, Upload, Camera, User, Crown, Eye } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Upload, Camera, User, Crown, Eye, Palette } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Bio, User as UserType } from "../../../shared/schema";
@@ -21,6 +22,7 @@ const bioSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, hyphens, and underscores"),
   avatarUrl: z.string().url().optional().or(z.literal("")),
   profilePicture: z.string().optional(),
+  colorScheme: z.string().optional(),
 });
 
 const linkSchema = z.object({
@@ -115,6 +117,7 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
       username: user?.username || "",
       avatarUrl: bio?.avatarUrl || "",
       profilePicture: bio?.profilePicture || "",
+      colorScheme: bio?.colorScheme || "default",
     },
   });
 
@@ -124,6 +127,7 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
   const watchedDescription = watchedValues.description;
   const watchedUsername = watchedValues.username;
   const watchedAvatarUrl = watchedValues.avatarUrl;
+  const watchedColorScheme = watchedValues.colorScheme;
   
   useEffect(() => {
     setLivePreview(prev => ({
@@ -133,9 +137,10 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
       username: watchedUsername || "",
       avatarUrl: watchedAvatarUrl || "",
       profilePicture: profilePicture,
-      links: links
+      links: links,
+      colorScheme: watchedColorScheme || "default"
     }));
-  }, [watchedName, watchedDescription, watchedUsername, watchedAvatarUrl, links, profilePicture, user?.firstName]);
+  }, [watchedName, watchedDescription, watchedUsername, watchedAvatarUrl, watchedColorScheme, links, profilePicture, user?.firstName]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: BioFormData) => {
@@ -143,7 +148,6 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
         ...data,
         links,
         profilePicture,
-        colorScheme: bio?.colorScheme || "default",
         layout: bio?.layout || "default",
         theme: bio?.theme || {}
       };
@@ -328,6 +332,41 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
                   {...form.register("description")}
                 />
               </div>
+
+              {/* Color Scheme */}
+              <div className="space-y-2">
+                <Label htmlFor="colorScheme" className="flex items-center">
+                  <Palette className="h-4 w-4 mr-2" />
+                  Color Scheme
+                </Label>
+                <Select
+                  value={form.watch("colorScheme") || "default"}
+                  onValueChange={(value) => {
+                    form.setValue("colorScheme", value);
+                    toast({
+                      title: "Color scheme updated!",
+                      description: `Applied ${colorSchemes[value as keyof typeof colorSchemes]?.name || value} theme`,
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a color scheme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(colorSchemes).map(([key, scheme]) => (
+                      <SelectItem key={key} value={key}>
+                        <div className="flex items-center">
+                          <div 
+                            className="w-4 h-4 rounded-full mr-2 border"
+                            style={{ backgroundColor: scheme.primary }}
+                          />
+                          {scheme.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
 
@@ -418,8 +457,18 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open(`/${livePreview.username}`, '_blank')}
-              disabled={!livePreview.username}
+              onClick={() => {
+                const username = form.watch("username") || livePreview.username;
+                if (!username) {
+                  toast({
+                    title: "Username Required",
+                    description: "Please set a username first to view your live bio.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                window.open(`/${username}`, '_blank');
+              }}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Open Live Bio
