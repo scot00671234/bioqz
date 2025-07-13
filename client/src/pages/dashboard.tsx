@@ -224,16 +224,7 @@ export default function Dashboard() {
               </div>
             )}
             
-            {/* Pro Editor Button for Pro Users */}
-            {user?.isPaid && (
-              <Button 
-                onClick={() => navigate("/pro-editor")}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
-              >
-                <Crown className="h-4 w-4 mr-2" />
-                Pro Editor
-              </Button>
-            )}
+
             
             {/* Upgrade Button for Free Users */}
             {!user?.isPaid && (

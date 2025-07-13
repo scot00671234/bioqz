@@ -6,6 +6,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (January 2025)
 
+### Migration to Standard Replit Environment (July 2025)
+- Successfully migrated project from Replit Agent to standard Replit environment
+- Set up PostgreSQL database with automatic environment variable configuration
+- Applied all database migrations successfully
+- Verified full application functionality with proper client/server separation
+- Removed Pro Editor button from dashboard as requested
+- Application now runs cleanly on port 5000 with comprehensive security practices
+
 ### Real Analytics & Pro Features Enhancement (July 2025)
 - Implemented real analytics tracking system with PostgreSQL database
 - Added bioViews and linkClicks tables for comprehensive analytics data
