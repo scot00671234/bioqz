@@ -174,21 +174,32 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
                 backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].background,
                 color: colorSchemes[colorScheme as keyof typeof colorSchemes].text
               }}>
-                <h4 className="font-semibold mb-2">Preview</h4>
-                <div className="space-y-2">
+                <h4 className="font-semibold mb-2">Bio Preview</h4>
+                <div className="space-y-3">
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-full mx-auto mb-2" style={{
+                      backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                      opacity: 0.8
+                    }}>
+                      <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold">
+                        A
+                      </div>
+                    </div>
+                    <h5 className="font-semibold">Your Name</h5>
+                    <p className="text-sm opacity-80">Your bio description</p>
+                  </div>
                   <div
-                    className="px-3 py-2 rounded text-white text-sm"
+                    className="px-3 py-2 rounded text-white text-sm text-center"
                     style={{ backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary }}
                   >
-                    Primary Button
+                    Sample Link
                   </div>
                   <div
-                    className="px-3 py-2 rounded text-white text-sm"
+                    className="px-3 py-2 rounded text-white text-sm text-center"
                     style={{ backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary }}
                   >
-                    Secondary Button
+                    Another Link
                   </div>
-                  <p className="text-sm">This is how your text will appear</p>
                 </div>
               </div>
             </CardContent>
@@ -221,9 +232,38 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
               {/* Layout Preview */}
               <div className="mt-4 p-4 rounded-lg border bg-gray-50">
                 <h4 className="font-semibold mb-2">Layout Preview</h4>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 mb-3">
                   {layouts[layout as keyof typeof layouts].description}
                 </div>
+                
+                {/* Visual Layout Preview */}
+                <div className="bg-white p-3 rounded border">
+                  {layout === 'cards' && (
+                    <div className="space-y-2">
+                      <div className="w-full h-8 bg-blue-100 rounded flex items-center justify-center text-xs">Card Style Links</div>
+                      <div className="w-full h-8 bg-blue-100 rounded flex items-center justify-center text-xs">Card Style Links</div>
+                    </div>
+                  )}
+                  {layout === 'minimal' && (
+                    <div className="space-y-1">
+                      <div className="w-full h-6 bg-gray-100 rounded flex items-center justify-center text-xs">Minimal Links</div>
+                      <div className="w-full h-6 bg-gray-100 rounded flex items-center justify-center text-xs">Minimal Links</div>
+                    </div>
+                  )}
+                  {layout === 'gradient' && (
+                    <div className="space-y-2">
+                      <div className="w-full h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded flex items-center justify-center text-xs text-white">Gradient Links</div>
+                      <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-teal-400 rounded flex items-center justify-center text-xs text-white">Gradient Links</div>
+                    </div>
+                  )}
+                  {layout === 'default' && (
+                    <div className="space-y-2">
+                      <div className="w-full h-8 bg-indigo-500 rounded flex items-center justify-center text-xs text-white">Default Links</div>
+                      <div className="w-full h-8 bg-indigo-500 rounded flex items-center justify-center text-xs text-white">Default Links</div>
+                    </div>
+                  )}
+                </div>
+                
                 <Badge variant="outline" className="mt-2">
                   {layouts[layout as keyof typeof layouts].name}
                 </Badge>

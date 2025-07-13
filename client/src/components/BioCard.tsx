@@ -26,9 +26,47 @@ export default function BioCard({ bio, username }: BioCardProps) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  // Get theme colors from bio data
+  const themeColors = bio.theme?.colors || {
+    primary: "#6366f1",
+    secondary: "#8b5cf6",
+    background: "#ffffff",
+    text: "#1f2937"
+  };
+
+  const cardStyle = {
+    backgroundColor: themeColors.background,
+    color: themeColors.text,
+  };
+
+  const buttonStyle = {
+    backgroundColor: themeColors.primary,
+    borderColor: themeColors.primary,
+  };
+
+  // Apply layout-specific styles
+  const layout = bio.layout || 'default';
+  const layoutClasses = {
+    default: "shadow-xl",
+    cards: "shadow-lg border-2",
+    minimal: "shadow-sm border",
+    gradient: "shadow-2xl bg-gradient-to-br"
+  };
+
+  const buttonLayoutClasses = {
+    default: "w-full text-white py-3 h-auto transition-all duration-200 hover:opacity-90",
+    cards: "w-full text-white py-4 h-auto rounded-lg shadow-md transition-all duration-200 hover:shadow-lg hover:transform hover:scale-105",
+    minimal: "w-full text-white py-2 h-auto rounded-sm transition-all duration-200 hover:opacity-80",
+    gradient: "w-full text-white py-3 h-auto rounded-lg bg-gradient-to-r transition-all duration-200 hover:shadow-lg"
+  };
+
   return (
-    <Card className="shadow-xl">
+    <Card className={layoutClasses[layout as keyof typeof layoutClasses]} style={cardStyle}>
       <CardContent className="p-8 text-center">
+        {/* Custom CSS */}
+        {bio.customCss && (
+          <style dangerouslySetInnerHTML={{ __html: bio.customCss }} />
+        )}
         {/* Profile Image */}
         <div className="mb-6 animate-fade-in">
           {(bio.profilePicture || bio.avatarUrl) ? (
@@ -47,9 +85,9 @@ export default function BioCard({ bio, username }: BioCardProps) {
         </div>
 
         {/* Name and Bio */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 animate-slide-up">{bio.name}</h1>
+        <h1 className="text-2xl font-bold mb-2 animate-slide-up" style={{ color: themeColors.text }}>{bio.name}</h1>
         {bio.description && (
-          <p className="text-gray-600 mb-8 animate-slide-up">{bio.description}</p>
+          <p className="mb-8 animate-slide-up" style={{ color: themeColors.text, opacity: 0.8 }}>{bio.description}</p>
         )}
 
         {/* Links */}
@@ -58,7 +96,11 @@ export default function BioCard({ bio, username }: BioCardProps) {
             <Button
               key={index}
               onClick={() => handleLinkClick(link.url, link.title)}
-              className="w-full bg-brand-600 text-white hover:bg-brand-700 py-3 h-auto"
+              className={buttonLayoutClasses[layout as keyof typeof buttonLayoutClasses]}
+              style={layout === 'gradient' ? {
+                background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})`,
+                border: 'none'
+              } : buttonStyle}
               variant="default"
             >
               <div className="flex items-center justify-center w-full">
@@ -68,7 +110,7 @@ export default function BioCard({ bio, username }: BioCardProps) {
             </Button>
           ))}
           {(!bio.links || !Array.isArray(bio.links) || bio.links.length === 0) && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8" style={{ color: themeColors.text, opacity: 0.6 }}>
               <ExternalLink className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No links added yet.</p>
             </div>
@@ -76,9 +118,9 @@ export default function BioCard({ bio, username }: BioCardProps) {
         </div>
 
         {/* Powered by */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500">
-            Powered by <span className="text-brand-600 font-semibold">bioqz</span>
+        <div className="mt-8 pt-6 border-t" style={{ borderColor: themeColors.text, opacity: 0.2 }}>
+          <p className="text-sm" style={{ color: themeColors.text, opacity: 0.6 }}>
+            Powered by <span style={{ color: themeColors.primary }} className="font-semibold">bioqz</span>
           </p>
         </div>
       </CardContent>
