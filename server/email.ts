@@ -2,8 +2,8 @@ import nodemailer from 'nodemailer';
 
 // Create transporter for email
 const createTransporter = async () => {
-  // For development: Use Ethereal Email (creates test emails viewable in browser)
-  if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
+  // For development: Use Ethereal Email only if no SMTP credentials are provided
+  if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER && !process.env.SMTP_USER) {
     try {
       const testAccount = await nodemailer.createTestAccount();
       console.log('📧 Using Ethereal Email for development');
@@ -33,13 +33,14 @@ const createTransporter = async () => {
   const smtpPort = parseInt(process.env.SMTP_PORT || '587');
 
   if (emailUser && emailPass) {
-    return nodemailer.createTransporter({
+    console.log(`📧 Configuring SMTP: ${smtpHost}:${smtpPort} for user: ${emailUser}`);
+    return nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
       secure: smtpPort === 465, // true for 465, false for other ports
       auth: {
         user: emailUser,
-        pass: emailPass,
+        pass: emailPass.replace(/\s+/g, ''), // Remove any spaces from app password
       },
     });
   }
