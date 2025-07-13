@@ -19,6 +19,8 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   getUserByGoogleId(googleId: string): Promise<User | undefined>;
   linkGoogleAccount(userId: string, googleId: string): Promise<void>;
+  verifyEmail(token: string): Promise<User | null>;
+  updateEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   deleteUser(userId: string): Promise<void>;
   
@@ -80,6 +82,47 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ googleId, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async verifyEmail(token: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.emailVerificationToken, token));
+
+    if (!user || !user.emailVerificationExpires) {
+      return null;
+    }
+
+    // Check if token is expired
+    if (new Date() > user.emailVerificationExpires) {
+      return null;
+    }
+
+    // Verify the email
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        emailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id))
+      .returning();
+
+    return updatedUser;
+  }
+
+  async updateEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        emailVerificationToken: token,
+        emailVerificationExpires: expires,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, userId));
   }
 

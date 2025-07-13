@@ -16,6 +16,7 @@ import { Loader2, Mail, Lock, User, Chrome } from "lucide-react";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
@@ -72,12 +73,20 @@ export default function AuthPage() {
       return await res.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Welcome to bioqz!",
-        description: "Your account has been created successfully.",
-      });
-      navigate("/");
+      if (data.requiresVerification) {
+        toast({
+          title: "Check your email!",
+          description: "We've sent you a verification link. Click it to activate your account.",
+        });
+        setShowVerificationMessage(true);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        toast({
+          title: "Welcome to bioqz!",
+          description: "Your account has been created successfully.",
+        });
+        navigate("/");
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -104,6 +113,41 @@ export default function AuthPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Show verification message after registration
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50">
+        <div className="max-w-md w-full mx-4">
+          <Card className="shadow-lg">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="h-8 w-8 text-orange-600" />
+              </div>
+              <CardTitle>Check Your Email</CardTitle>
+              <CardDescription>
+                We've sent a verification link to your email address. Click the link to activate your account and start using bioqz.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="text-sm text-amber-800">
+                  <strong>Didn't receive the email?</strong> Check your spam folder or try signing up again.
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowVerificationMessage(false)}
+                className="w-full"
+              >
+                Back to Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }

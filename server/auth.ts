@@ -9,6 +9,7 @@ import { randomBytes, scrypt, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { registerSchema, loginSchema } from "@shared/schema";
 import { ZodError } from "zod";
+import { sendVerificationEmail, sendWelcomeEmail } from "./email";
 
 const scryptAsync = promisify(scrypt);
 
@@ -69,6 +70,10 @@ export async function setupAuth(app: Express) {
             return done(null, false, { message: "Invalid email or password" });
           }
 
+          if (!user.emailVerified) {
+            return done(null, false, { message: "Please verify your email before signing in" });
+          }
+
           const isValid = await comparePasswords(password, user.password);
           if (!isValid) {
             return done(null, false, { message: "Invalid email or password" });
@@ -112,6 +117,7 @@ export async function setupAuth(app: Express) {
                   lastName: profile.name?.familyName || "",
                   profileImageUrl: profile.photos?.[0]?.value || null,
                   googleId: profile.id,
+                  emailVerified: true, // Google accounts are pre-verified
                 };
                 user = await storage.upsertUser(googleUser);
               }
@@ -156,25 +162,62 @@ export async function setupAuth(app: Express) {
 
       // Hash password and create user
       const hashedPassword = await hashPassword(validatedData.password);
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const newUser = await storage.createUser({
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: userId,
         email: validatedData.email,
         password: hashedPassword,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
+        emailVerified: false,
       });
 
-      // Log user in
-      req.login(newUser, (err) => {
-        if (err) {
-          console.error("Login after registration error:", err);
-          return res.status(500).json({ message: "Registration successful but login failed" });
+      // Generate verification token and set expiration (24 hours)
+      const verificationToken = randomBytes(32).toString('hex');
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      
+      await storage.updateEmailVerificationToken(userId, verificationToken, expires);
+
+      // Send verification email
+      try {
+        const emailSent = await sendVerificationEmail(
+          validatedData.email, 
+          validatedData.firstName, 
+          verificationToken
+        );
+        
+        if (emailSent) {
+          res.status(201).json({ 
+            message: "Registration successful! Please check your email to verify your account.", 
+            requiresVerification: true
+          });
+        } else {
+          // If email fails, still create account but mark as verified (fallback)
+          await storage.verifyEmail(verificationToken);
+          req.login(newUser, (err) => {
+            if (err) {
+              return res.status(500).json({ message: "Registration successful but login failed" });
+            }
+            res.status(201).json({ 
+              message: "Registration successful! (Email verification skipped)", 
+              user: { ...newUser, password: undefined } 
+            });
+          });
         }
-        res.status(201).json({ 
-          message: "Registration successful", 
-          user: { ...newUser, password: undefined } 
+      } catch (error) {
+        console.error("Error sending verification email:", error);
+        // Fallback: verify user automatically
+        await storage.verifyEmail(verificationToken);
+        req.login(newUser, (err) => {
+          if (err) {
+            return res.status(500).json({ message: "Registration successful but login failed" });
+          }
+          res.status(201).json({ 
+            message: "Registration successful! (Email verification skipped)", 
+            user: { ...newUser, password: undefined } 
+          });
         });
-      });
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({ 
@@ -248,6 +291,38 @@ export async function setupAuth(app: Express) {
       }
       res.json({ message: "Logout successful" });
     });
+  });
+
+  // Email verification route
+  app.get("/api/verify-email", async (req, res) => {
+    const { token } = req.query;
+
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ message: "Invalid verification token" });
+    }
+
+    try {
+      const user = await storage.verifyEmail(token);
+      
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired verification token" });
+      }
+
+      // Send welcome email
+      await sendWelcomeEmail(user.email, user.firstName || "");
+
+      // Auto-login the user after verification
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Login after verification error:", err);
+          return res.redirect("/auth?verified=true&login=failed");
+        }
+        res.redirect("/?verified=true");
+      });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(500).json({ message: "Verification failed" });
+    }
   });
 
   // Legacy redirect routes
