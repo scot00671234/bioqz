@@ -27,12 +27,19 @@ const createTransporter = async () => {
   }
   
   // Production: Use configured SMTP (Gmail, SendGrid, etc.)
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-    return nodemailer.createTransport({
-      service: 'gmail',
+  const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const emailPass = process.env.SMTP_PASS || process.env.EMAIL_PASSWORD;
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+
+  if (emailUser && emailPass) {
+    return nodemailer.createTransporter({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true for 465, false for other ports
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: emailUser,
+        pass: emailPass,
       },
     });
   }
@@ -53,10 +60,11 @@ export async function sendVerificationEmail(
     return false;
   }
 
+  const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
   const verificationUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/api/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
-    from: `"bioqz" <${process.env.EMAIL_USER}>`,
+    from: `"bioqz" <${emailUser}>`,
     to: email,
     subject: 'Verify your bioqz account',
     html: `
@@ -140,8 +148,9 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
     return false;
   }
 
+  const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
   const mailOptions = {
-    from: `"bioqz" <${process.env.EMAIL_USER}>`,
+    from: `"bioqz" <${emailUser}>`,
     to: email,
     subject: 'Welcome to bioqz!',
     html: `

@@ -2,10 +2,21 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm run build && npm start"
 healthcheckPath = "/"
-healthcheckTimeout = 60
+healthcheckTimeout = 120
 restartPolicyType = "always"
 
 [environments.production]
 variables = {}
+
+# Railway will automatically provide DATABASE_URL
+# Additional environment variables to set in Railway dashboard:
+# - STRIPE_SECRET_KEY (for payment features)
+# - GOOGLE_CLIENT_ID (for OAuth authentication)
+# - GOOGLE_CLIENT_SECRET (for OAuth authentication)
+# - SMTP_HOST (for email features)
+# - SMTP_PORT (for email features)
+# - SMTP_USER (for email features)
+# - SMTP_PASS (for email features)
+# - SESSION_SECRET (for session security)
