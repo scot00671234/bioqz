@@ -11,7 +11,7 @@ const createTransporter = async () => {
       console.log(`📧 Username: ${testAccount.user}`);
       console.log(`📧 Password: ${testAccount.pass}`);
       
-      return nodemailer.createTransporter({
+      return nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
         secure: false,
@@ -28,7 +28,7 @@ const createTransporter = async () => {
   
   // Production: Use configured SMTP (Gmail, SendGrid, etc.)
   if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
