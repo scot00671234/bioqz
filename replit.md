@@ -20,6 +20,8 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Created cancelUserSubscription storage method and API endpoint
 - Removed bouncing animation from bioqz logo in dashboard header
 - Removed "Dashboard" text from header for cleaner design
+- Repositioned Settings and Logout buttons side by side in header
+- Changed name display to "Hi, [person's name]" format for friendlier greeting
 
 ### Replit Migration & Pro Editor (July 2025)
 - Successfully migrated project from Replit Agent to standard Replit environment

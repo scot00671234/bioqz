@@ -101,6 +101,11 @@ export default function Dashboard() {
               <h1 className="text-2xl font-bold text-brand-600">bioqz</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <span className="text-gray-700 font-medium">
+                Hi, {user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user?.email || 'there'}
+              </span>
               <Button
                 onClick={handleSettings}
                 variant="ghost"
@@ -109,23 +114,9 @@ export default function Dashboard() {
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </Button>
-              <div className="flex items-center space-x-2">
-                {user?.profileImageUrl && (
-                  <img
-                    src={user.profileImageUrl}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                )}
-                <span className="text-gray-700 font-medium">
-                  {user?.firstName && user?.lastName
-                    ? `${user.firstName} ${user.lastName}`
-                    : user?.email}
-                </span>
-                <Button onClick={handleLogout} variant="ghost" size="sm">
-                  Logout
-                </Button>
-              </div>
+              <Button onClick={handleLogout} variant="ghost" size="sm">
+                Logout
+              </Button>
             </div>
           </div>
         </div>
