@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, Link, Palette, BarChart3, Menu, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
-import landingBgImage from "@/assets/hero-background.svg";
+import peopleCollageImage from "@/assets/people-collage.jpg";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -83,30 +83,30 @@ export default function Landing() {
       {/* Hero Section */}
       <section 
         id="home" 
-        className="relative py-20 bg-gradient-to-br from-brand-50 to-purple-50"
+        className="relative py-20"
         style={{
-          backgroundImage: `url(${landingBgImage})`,
+          backgroundImage: `url(${peopleCollageImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Optional overlay for better text readability */}
-        <div className="absolute inset-0 bg-white/70"></div>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
               Your Bio, 
-              <span className="text-brand-600"> Quickly</span>
+              <span className="text-orange-400"> Quickly</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slide-up">
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto animate-slide-up">
               Create a stunning bio page that showcases all your links in one place. Perfect for social media, business cards, and email signatures.
             </p>
             <div className="flex justify-center">
               <Button 
                 onClick={handleGetStarted} 
-                className="bg-brand-600 text-white px-8 py-3 text-lg font-semibold hover:bg-brand-700 h-auto"
+                className="bg-orange-500 text-white px-8 py-3 text-lg font-semibold hover:bg-orange-600 h-auto shadow-lg"
               >
                 Create Your Bio
               </Button>
