@@ -46,7 +46,7 @@ export async function sendVerificationEmail(
   firstName: string, 
   verificationToken: string
 ): Promise<boolean> {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   
   if (!transporter) {
     console.log('Email not configured, skipping verification email');
@@ -118,8 +118,14 @@ export async function sendVerificationEmail(
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     console.log(`Verification email sent to ${email}`);
+    
+    // If using Ethereal Email (test mode), log the preview URL
+    if (nodemailer.getTestMessageUrl(info)) {
+      console.log('📧 Preview email: ' + nodemailer.getTestMessageUrl(info));
+    }
+    
     return true;
   } catch (error) {
     console.error('Error sending verification email:', error);
@@ -128,7 +134,7 @@ export async function sendVerificationEmail(
 }
 
 export async function sendWelcomeEmail(email: string, firstName: string): Promise<boolean> {
-  const transporter = createTransporter();
+  const transporter = await createTransporter();
   
   if (!transporter) {
     return false;
@@ -198,8 +204,14 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     console.log(`Welcome email sent to ${email}`);
+    
+    // If using Ethereal Email (test mode), log the preview URL  
+    if (nodemailer.getTestMessageUrl(info)) {
+      console.log('📧 Preview email: ' + nodemailer.getTestMessageUrl(info));
+    }
+    
     return true;
   } catch (error) {
     console.error('Error sending welcome email:', error);
