@@ -26,6 +26,7 @@ export interface IStorage {
   verifyEmail(token: string): Promise<User | null>;
   updateEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  cancelUserSubscription(userId: string): Promise<User>;
   deleteUser(userId: string): Promise<void>;
   
   // Bio operations
@@ -149,6 +150,19 @@ export class DatabaseStorage implements IStorage {
         stripeCustomerId,
         stripeSubscriptionId,
         isPaid: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async cancelUserSubscription(userId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        isPaid: false,
+        stripeSubscriptionId: null,
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId))

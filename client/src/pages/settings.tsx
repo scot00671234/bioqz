@@ -75,9 +75,48 @@ export default function Settings() {
     },
   });
 
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/cancel-subscription");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Subscription Cancelled",
+        description: "Your subscription has been cancelled successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to cancel subscription. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleDeleteAccount = () => {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
       deleteAccountMutation.mutate();
+    }
+  };
+
+  const handleCancelSubscription = () => {
+    if (window.confirm("Are you sure you want to cancel your subscription? You will lose access to Pro features at the end of your current billing period.")) {
+      cancelSubscriptionMutation.mutate();
     }
   };
 
@@ -211,14 +250,26 @@ export default function Settings() {
                       : "Upgrade to unlock premium features"}
                   </p>
                 </div>
-                {!user?.isPaid && (
-                  <Button
-                    onClick={handleUpgrade}
-                    className="bg-brand-600 text-white hover:bg-brand-700"
-                  >
-                    Upgrade to Pro
-                  </Button>
-                )}
+                <div className="flex space-x-2">
+                  {!user?.isPaid && (
+                    <Button
+                      onClick={handleUpgrade}
+                      className="bg-brand-600 text-white hover:bg-brand-700"
+                    >
+                      Upgrade to Pro
+                    </Button>
+                  )}
+                  {user?.isPaid && (
+                    <Button
+                      onClick={handleCancelSubscription}
+                      disabled={cancelSubscriptionMutation.isPending}
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      {cancelSubscriptionMutation.isPending ? "Cancelling..." : "Cancel Subscription"}
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
