@@ -115,39 +115,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Everything You Need</h2>
-            <p className="text-xl text-gray-600">Simple, powerful tools to build your perfect bio page</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Link className="text-brand-600 h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Custom Links</h3>
-              <p className="text-gray-600">Add links to your social profiles, websites, and content (1 link free, unlimited with Pro)</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Palette className="text-brand-600 h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Beautiful Themes</h3>
-              <p className="text-gray-600">Choose from professionally designed themes that match your style</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="text-brand-600 h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Analytics</h3>
-              <p className="text-gray-600">Track clicks and see which links your audience engages with most</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Example Bio Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -204,15 +171,38 @@ export default function Landing() {
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Call to Action below example */}
-            <div className="mt-8 text-center">
-              <Button
-                onClick={handleGetStarted}
-                className="bg-brand-600 text-white hover:bg-brand-700 px-8 py-3 text-lg font-semibold"
-              >
-                Create Your Own Bio Page
-              </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Everything You Need</h2>
+            <p className="text-xl text-gray-600">Simple, powerful tools to build your perfect bio page</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Link className="text-brand-600 h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Custom Links</h3>
+              <p className="text-gray-600">Add links to your social profiles, websites, and content (1 link free, unlimited with Pro)</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Palette className="text-brand-600 h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Beautiful Themes</h3>
+              <p className="text-gray-600">Choose from professionally designed themes that match your style</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-brand-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="text-brand-600 h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Analytics</h3>
+              <p className="text-gray-600">Track clicks and see which links your audience engages with most</p>
             </div>
           </div>
         </div>
