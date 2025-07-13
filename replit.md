@@ -90,11 +90,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Removed "View Example" button to streamline user flow
 - Added call-to-action button below example bio for better conversion
 
-### Stripe Integration Setup
-- Complete Stripe payment integration with real API keys
-- Professional subscription page with $9/month Pro plan
-- Payment processing routes and webhook support
+### Stripe Integration Setup (July 2025)
+- Complete Stripe payment integration with real API keys and proper subscription system
+- Professional subscription page with $9/month Pro plan using actual Stripe subscriptions
+- Created bioqz Pro product and monthly pricing in Stripe dashboard
+- Payment processing routes and webhook support for subscription events
 - User payment status tracking and account upgrades
+- Proper subscription lifecycle management with cancellation support
+- Production-ready webhook handling for invoice.payment_succeeded and customer.subscription.deleted events
 
 ### Free Plan Limitations
 - Updated free plan to limit users to 1 link maximum

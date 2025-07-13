@@ -285,37 +285,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Check if user already has an active subscription
       if (user.stripeSubscriptionId) {
-        const paymentIntent = await stripe.paymentIntents.retrieve(user.stripeSubscriptionId);
-        
-        return res.json({
-          subscriptionId: paymentIntent.id,
-          clientSecret: paymentIntent.client_secret,
-        });
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+          if (subscription.status === 'active') {
+            return res.json({
+              subscriptionId: subscription.id,
+              status: 'active',
+              message: 'Already subscribed to Pro'
+            });
+          }
+        } catch (error) {
+          console.log('Previous subscription not found, creating new one');
+        }
       }
       
       if (!user.email) {
         return res.status(400).json({ message: 'No user email on file' });
       }
 
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email,
-      });
+      // Create or retrieve Stripe customer
+      let customer;
+      if (user.stripeCustomerId) {
+        customer = await stripe.customers.retrieve(user.stripeCustomerId);
+      } else {
+        customer = await stripe.customers.create({
+          email: user.email,
+          name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email,
+        });
+      }
 
-      // Create a simple payment intent for testing
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: 900, // $9.00 in cents
-        currency: 'usd',
+      // Create subscription
+      const subscription = await stripe.subscriptions.create({
         customer: customer.id,
-        setup_future_usage: 'off_session',
+        items: [{
+          price: process.env.STRIPE_PRICE_ID,
+        }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: {
+          save_default_payment_method: 'on_subscription',
+        },
+        expand: ['latest_invoice.payment_intent'],
       });
 
-      await storage.updateUserStripeInfo(userId, customer.id, paymentIntent.id);
+      // Update user with Stripe info
+      await storage.updateUserStripeInfo(userId, customer.id, subscription.id);
 
       res.json({
-        subscriptionId: paymentIntent.id,
-        clientSecret: paymentIntent.client_secret,
+        subscriptionId: subscription.id,
+        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
       });
     } catch (error: any) {
       console.error("Error creating subscription:", error);
@@ -323,23 +342,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe webhook to handle payment success
+  // Stripe webhook to handle subscription events
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     
     try {
-      // For testing purposes, we'll handle payment intent succeeded events
+      // For testing purposes, we'll handle subscription events
       const event = JSON.parse(req.body.toString());
       
-      if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object;
+      if (event.type === 'invoice.payment_succeeded') {
+        const invoice = event.data.object;
         
-        if (paymentIntent.customer) {
+        if (invoice.subscription && invoice.customer) {
           // Find user by Stripe customer ID and update their payment status
-          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, paymentIntent.customer));
+          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, invoice.customer));
           
           if (userResults.length > 0) {
-            await storage.updateUserStripeInfo(userResults[0].id, paymentIntent.customer, paymentIntent.id);
+            await db.update(users)
+              .set({ 
+                isPaid: true,
+                stripeSubscriptionId: invoice.subscription
+              })
+              .where(eq(users.id, userResults[0].id));
+          }
+        }
+      }
+      
+      if (event.type === 'customer.subscription.deleted') {
+        const subscription = event.data.object;
+        
+        if (subscription.customer) {
+          // Find user by Stripe customer ID and remove their Pro status
+          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, subscription.customer));
+          
+          if (userResults.length > 0) {
+            await db.update(users)
+              .set({ 
+                isPaid: false,
+                stripeSubscriptionId: null
+              })
+              .where(eq(users.id, userResults[0].id));
           }
         }
       }
