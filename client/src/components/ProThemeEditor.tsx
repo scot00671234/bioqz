@@ -121,17 +121,28 @@ const fontSizes = {
 export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
   const [colorScheme, setColorScheme] = useState(bio?.colorScheme || "default");
   const [layout, setLayout] = useState(bio?.layout || "default");
-  const [customCss, setCustomCss] = useState(bio?.customCss || "");
   const [theme, setTheme] = useState(bio?.theme || {});
   const [fontFamily, setFontFamily] = useState(bio?.theme?.fontFamily || "inter");
   const [fontSize, setFontSize] = useState(bio?.theme?.fontSize || "medium");
   const { toast } = useToast();
 
+  // Update preview in real-time whenever settings change
+  const currentPreviewData = {
+    colorScheme,
+    layout,
+    theme: {
+      ...theme,
+      colors: colorSchemes[colorScheme as keyof typeof colorSchemes],
+      fontFamily,
+      fontSize
+    }
+  };
+
   const handleSave = () => {
     const themeData = {
       colorScheme,
       layout,
-      customCss,
+      customCss: "",
       theme: {
         ...theme,
         colors: colorSchemes[colorScheme as keyof typeof colorSchemes],
@@ -141,10 +152,6 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
     };
     
     onSave(themeData);
-    toast({
-      title: "Theme Saved",
-      description: "Your theme customizations have been saved successfully.",
-    });
   };
 
   const handlePreview = () => {
@@ -172,7 +179,7 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
       </div>
 
       <Tabs defaultValue="colors" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="colors">
             <Palette className="h-4 w-4 mr-2" />
             Colors
@@ -184,10 +191,6 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
           <TabsTrigger value="typography">
             <span className="text-sm mr-2">Aa</span>
             Typography
-          </TabsTrigger>
-          <TabsTrigger value="custom">
-            <Code className="h-4 w-4 mr-2" />
-            Custom CSS
           </TabsTrigger>
         </TabsList>
 
@@ -217,37 +220,92 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
                 </SelectContent>
               </Select>
               
-              {/* Color Preview */}
-              <div className="mt-4 p-4 rounded-lg border" style={{
+              {/* Live Bio Preview */}
+              <div className="mt-4 p-6 rounded-lg border" style={{
                 backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].background,
-                color: colorSchemes[colorScheme as keyof typeof colorSchemes].text
+                color: colorSchemes[colorScheme as keyof typeof colorSchemes].text,
+                fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes].size
               }}>
-                <h4 className="font-semibold mb-2">Bio Preview</h4>
-                <div className="space-y-3">
+                <h4 className="font-semibold mb-4">Live Bio Preview</h4>
+                <div className="space-y-4">
                   <div className="text-center">
-                    <div className="w-12 h-12 rounded-full mx-auto mb-2" style={{
+                    <div className="w-16 h-16 rounded-full mx-auto mb-3" style={{
                       backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
-                      opacity: 0.8
+                      opacity: 0.9
                     }}>
-                      <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold">
-                        A
+                      <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {(bio?.username || 'A').charAt(0).toUpperCase()}
                       </div>
                     </div>
-                    <h5 className="font-semibold">Your Name</h5>
-                    <p className="text-sm opacity-80">Your bio description</p>
+                    <h5 className="font-bold text-lg mb-1">{bio?.displayName || bio?.username || 'Your Name'}</h5>
+                    <p className="opacity-80 text-sm mb-3">{bio?.bio || 'Your bio description will appear here'}</p>
                   </div>
-                  <div
-                    className="px-3 py-2 rounded text-white text-sm text-center"
-                    style={{ backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary }}
-                  >
-                    Sample Link
-                  </div>
-                  <div
-                    className="px-3 py-2 rounded text-white text-sm text-center"
-                    style={{ backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary }}
-                  >
-                    Another Link
-                  </div>
+                  
+                  {/* Sample Links with Layout */}
+                  {layout === 'cards' && (
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-lg shadow-sm text-center" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                        color: 'white'
+                      }}>
+                        <div className="font-medium">Portfolio</div>
+                      </div>
+                      <div className="p-3 rounded-lg shadow-sm text-center" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary,
+                        color: 'white'
+                      }}>
+                        <div className="font-medium">Contact</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {layout === 'minimal' && (
+                    <div className="space-y-2">
+                      <div className="py-2 px-4 text-center border-b" style={{ 
+                        borderColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                        color: colorSchemes[colorScheme as keyof typeof colorSchemes].primary
+                      }}>
+                        Portfolio
+                      </div>
+                      <div className="py-2 px-4 text-center border-b" style={{ 
+                        borderColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary,
+                        color: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary
+                      }}>
+                        Contact
+                      </div>
+                    </div>
+                  )}
+                  
+                  {layout === 'gradient' && (
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-lg text-center text-white font-medium bg-gradient-to-r" style={{ 
+                        background: `linear-gradient(135deg, ${colorSchemes[colorScheme as keyof typeof colorSchemes].primary}, ${colorSchemes[colorScheme as keyof typeof colorSchemes].secondary})`
+                      }}>
+                        Portfolio
+                      </div>
+                      <div className="p-3 rounded-lg text-center text-white font-medium bg-gradient-to-r" style={{ 
+                        background: `linear-gradient(135deg, ${colorSchemes[colorScheme as keyof typeof colorSchemes].secondary}, ${colorSchemes[colorScheme as keyof typeof colorSchemes].primary})`
+                      }}>
+                        Contact
+                      </div>
+                    </div>
+                  )}
+                  
+                  {layout === 'default' && (
+                    <div className="space-y-3">
+                      <div className="px-4 py-3 rounded-lg text-white text-center font-medium" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary
+                      }}>
+                        Portfolio
+                      </div>
+                      <div className="px-4 py-3 rounded-lg text-white text-center font-medium" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary
+                      }}>
+                        Contact
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -277,44 +335,103 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
                 </SelectContent>
               </Select>
 
-              {/* Layout Preview */}
-              <div className="mt-4 p-4 rounded-lg border bg-gray-50">
-                <h4 className="font-semibold mb-2">Layout Preview</h4>
-                <div className="text-sm text-gray-600 mb-3">
+              {/* Live Layout Preview */}
+              <div className="mt-4 p-6 rounded-lg border" style={{
+                backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].background,
+                color: colorSchemes[colorScheme as keyof typeof colorSchemes].text,
+                fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes].size
+              }}>
+                <h4 className="font-semibold mb-4">Live Layout Preview</h4>
+                <div className="text-sm mb-4 opacity-80">
                   {layouts[layout as keyof typeof layouts].description}
                 </div>
                 
-                {/* Visual Layout Preview */}
-                <div className="bg-white p-3 rounded border">
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full mx-auto mb-3" style={{
+                      backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                      opacity: 0.9
+                    }}>
+                      <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {(bio?.username || 'A').charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <h5 className="font-bold text-lg mb-1">{bio?.displayName || bio?.username || 'Your Name'}</h5>
+                    <p className="opacity-80 text-sm mb-4">{bio?.bio || 'Your bio description'}</p>
+                  </div>
+                  
+                  {/* Dynamic Layout Rendering */}
                   {layout === 'cards' && (
-                    <div className="space-y-2">
-                      <div className="w-full h-8 bg-blue-100 rounded flex items-center justify-center text-xs">Card Style Links</div>
-                      <div className="w-full h-8 bg-blue-100 rounded flex items-center justify-center text-xs">Card Style Links</div>
+                    <div className="space-y-3">
+                      <div className="p-4 rounded-lg shadow-sm text-center border" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                        color: 'white'
+                      }}>
+                        <div className="font-medium">My Portfolio</div>
+                      </div>
+                      <div className="p-4 rounded-lg shadow-sm text-center border" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary,
+                        color: 'white'
+                      }}>
+                        <div className="font-medium">Contact Me</div>
+                      </div>
                     </div>
                   )}
+                  
                   {layout === 'minimal' && (
-                    <div className="space-y-1">
-                      <div className="w-full h-6 bg-gray-100 rounded flex items-center justify-center text-xs">Minimal Links</div>
-                      <div className="w-full h-6 bg-gray-100 rounded flex items-center justify-center text-xs">Minimal Links</div>
+                    <div className="space-y-2">
+                      <div className="py-3 px-4 text-center border-b-2 hover:opacity-80 transition-opacity" style={{ 
+                        borderColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                        color: colorSchemes[colorScheme as keyof typeof colorSchemes].primary
+                      }}>
+                        My Portfolio
+                      </div>
+                      <div className="py-3 px-4 text-center border-b-2 hover:opacity-80 transition-opacity" style={{ 
+                        borderColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary,
+                        color: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary
+                      }}>
+                        Contact Me
+                      </div>
                     </div>
                   )}
+                  
                   {layout === 'gradient' && (
-                    <div className="space-y-2">
-                      <div className="w-full h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded flex items-center justify-center text-xs text-white">Gradient Links</div>
-                      <div className="w-full h-8 bg-gradient-to-r from-blue-400 to-teal-400 rounded flex items-center justify-center text-xs text-white">Gradient Links</div>
+                    <div className="space-y-3">
+                      <div className="p-4 rounded-lg text-center text-white font-medium bg-gradient-to-r shadow-md hover:shadow-lg transition-shadow" style={{ 
+                        background: `linear-gradient(135deg, ${colorSchemes[colorScheme as keyof typeof colorSchemes].primary}, ${colorSchemes[colorScheme as keyof typeof colorSchemes].secondary})`
+                      }}>
+                        My Portfolio
+                      </div>
+                      <div className="p-4 rounded-lg text-center text-white font-medium bg-gradient-to-r shadow-md hover:shadow-lg transition-shadow" style={{ 
+                        background: `linear-gradient(135deg, ${colorSchemes[colorScheme as keyof typeof colorSchemes].secondary}, ${colorSchemes[colorScheme as keyof typeof colorSchemes].primary})`
+                      }}>
+                        Contact Me
+                      </div>
                     </div>
                   )}
+                  
                   {layout === 'default' && (
-                    <div className="space-y-2">
-                      <div className="w-full h-8 bg-indigo-500 rounded flex items-center justify-center text-xs text-white">Default Links</div>
-                      <div className="w-full h-8 bg-indigo-500 rounded flex items-center justify-center text-xs text-white">Default Links</div>
+                    <div className="space-y-3">
+                      <div className="px-6 py-4 rounded-lg text-white text-center font-medium hover:opacity-90 transition-opacity" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary
+                      }}>
+                        My Portfolio
+                      </div>
+                      <div className="px-6 py-4 rounded-lg text-white text-center font-medium hover:opacity-90 transition-opacity" style={{ 
+                        backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].secondary
+                      }}>
+                        Contact Me
+                      </div>
                     </div>
                   )}
                 </div>
                 
-                <Badge variant="outline" className="mt-2">
-                  {layouts[layout as keyof typeof layouts].name}
-                </Badge>
+                <div className="mt-4 text-center">
+                  <Badge variant="outline" className="opacity-70">
+                    {layouts[layout as keyof typeof layouts].name} Layout
+                  </Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -365,59 +482,50 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
                 </Select>
               </div>
 
-              {/* Typography Preview */}
-              <div className="mt-4 p-4 rounded-lg border" style={{
+              {/* Typography Live Preview */}
+              <div className="mt-4 p-6 rounded-lg border" style={{
                 backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].background,
                 color: colorSchemes[colorScheme as keyof typeof colorSchemes].text,
                 fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes].size
               }}>
-                <h4 className="font-semibold mb-2">Typography Preview</h4>
-                <h5 className="text-lg font-bold mb-2">Your Name</h5>
-                <p className="mb-3 opacity-80">
-                  This is how your bio description will appear with the selected font and size.
-                </p>
-                <div className="text-sm">
-                  The quick brown fox jumps over the lazy dog. 1234567890
+                <h4 className="font-semibold mb-4">Live Typography Preview</h4>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full mx-auto mb-3" style={{
+                      backgroundColor: colorSchemes[colorScheme as keyof typeof colorSchemes].primary,
+                      opacity: 0.9
+                    }}>
+                      <div className="w-full h-full rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {(bio?.username || 'A').charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <h5 className="font-bold text-lg mb-1" style={{
+                      fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
+                      fontSize: `calc(${fontSizes[fontSize as keyof typeof fontSizes].size} * 1.2)`
+                    }}>
+                      {bio?.displayName || bio?.username || 'Your Name'}
+                    </h5>
+                    <p className="opacity-80 mb-3" style={{
+                      fontFamily: fontOptions[fontFamily as keyof typeof fontOptions].family,
+                      fontSize: fontSizes[fontSize as keyof typeof fontSizes].size
+                    }}>
+                      {bio?.bio || 'Your bio description with the selected typography'}
+                    </p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-sm opacity-70">
+                      Font: {fontOptions[fontFamily as keyof typeof fontOptions].name} • Size: {fontSizes[fontSize as keyof typeof fontSizes].name}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="custom" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Custom CSS</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="customCss">Add custom CSS to further customize your bio</Label>
-              <Textarea
-                id="customCss"
-                value={customCss}
-                onChange={(e) => setCustomCss(e.target.value)}
-                placeholder="/* Add your custom CSS here */
-.bio-container {
-  font-family: 'Inter', sans-serif;
-}
 
-.bio-link {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.bio-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}"
-                className="mt-2 h-32 font-mono text-sm"
-              />
-              <p className="text-sm text-gray-500 mt-2">
-                Use CSS to override default styles. Changes will be applied to your bio page.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

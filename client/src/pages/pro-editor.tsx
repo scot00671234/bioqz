@@ -64,7 +64,7 @@ export default function ProEditor() {
 
   const saveThemeMutation = useMutation({
     mutationFn: async (themeData: any) => {
-      return apiRequest(`/api/bios`, "POST", {
+      return apiRequest("/api/bios", "POST", {
         ...bio,
         ...themeData
       });
