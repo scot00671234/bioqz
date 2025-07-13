@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import LiveEditingDashboard from "@/components/LiveEditingDashboard";
-import ColorSchemeSelector from "@/components/ColorSchemeSelector";
+
 import { useLocation } from "wouter";
 import type { Bio } from "../../../shared/schema";
 
@@ -287,18 +287,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Color Scheme Selector for Pro users */}
-        {user?.isPaid && (
-          <div className="mt-6">
-            <ColorSchemeSelector
-              user={user}
-              bio={bio}
-              onUpdate={() => {
-                queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
-              }}
-            />
-          </div>
-        )}
+
       </div>
     </div>
   );
