@@ -1,19 +1,44 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter for Gmail SMTP
-const createTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.warn('Email credentials not configured. Email functionality will be disabled.');
-    return null;
+// Create transporter for email
+const createTransporter = async () => {
+  // For development: Use Ethereal Email (creates test emails viewable in browser)
+  if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
+    try {
+      const testAccount = await nodemailer.createTestAccount();
+      console.log('📧 Using Ethereal Email for development');
+      console.log('📧 View emails at: https://ethereal.email/login');
+      console.log(`📧 Username: ${testAccount.user}`);
+      console.log(`📧 Password: ${testAccount.pass}`);
+      
+      return nodemailer.createTransporter({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+    } catch (error) {
+      console.warn('Failed to create Ethereal test account:', error);
+      return null;
+    }
+  }
+  
+  // Production: Use configured SMTP (Gmail, SendGrid, etc.)
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    return nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
   }
 
-  return nodemailer.createTransporter({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER, // Your Gmail address
-      pass: process.env.EMAIL_PASSWORD, // Your Gmail App Password
-    },
-  });
+  console.warn('Email credentials not configured. Email functionality will be disabled.');
+  return null;
 };
 
 export async function sendVerificationEmail(
