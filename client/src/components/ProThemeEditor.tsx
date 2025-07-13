@@ -140,7 +140,7 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
         ...updates.theme
       }
     };
-    console.log("ProThemeEditor - updatePreview called with:", updates, "newPreviewState:", newPreviewState);
+
     onPreviewChange(newPreviewState);
   };
 
@@ -220,7 +220,7 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
             <CardContent>
               <Label htmlFor="colorScheme">Choose a color scheme</Label>
               <Select value={colorScheme} onValueChange={(value) => {
-                console.log("ProThemeEditor - Changing color scheme to:", value);
+
                 setColorScheme(value);
                 updatePreview({ colorScheme: value });
               }}>

@@ -47,16 +47,12 @@ export default function ProEditor() {
     retry: false,
   });
 
-  // State for real-time preview
-  const [previewState, setPreviewState] = useState({
-    colorScheme: bio?.colorScheme || "default",
-    layout: bio?.layout || "default",
-    theme: bio?.theme || {},
-  });
+  // State for real-time preview - initialize with sensible defaults
+  const [previewState, setPreviewState] = useState(null);
 
-  // Update preview state when bio data changes
+  // Initialize preview state only once when bio is loaded
   useEffect(() => {
-    if (bio) {
+    if (bio && previewState === null) {
       setPreviewState({
         colorScheme: bio.colorScheme || "default",
         layout: bio.layout || "default",
