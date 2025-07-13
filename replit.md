@@ -6,6 +6,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (January 2025)
 
+### Railway Deployment Migration (July 2025)
+- Migrated from Replit Agent to standard Replit environment for Railway compatibility
+- Made Replit authentication optional with graceful fallbacks
+- Added automatic database migrations on production startup
+- Created Railway deployment configuration and comprehensive guide
+- Enhanced authentication system to work without OAuth credentials
+- Added environment variable safety checks and warnings
+
 ### Stripe Integration Setup
 - Complete Stripe payment integration with real API keys
 - Professional subscription page with $9/month Pro plan
@@ -115,10 +123,12 @@ Preferred communication style: Simple, everyday language.
 - **Environment**: Production-ready Express server
 
 ### Configuration
-- **Environment Variables**: DATABASE_URL, SESSION_SECRET, STRIPE_SECRET_KEY
-- **Database Migrations**: Automatic schema updates via Drizzle
+- **Environment Variables**: DATABASE_URL, SESSION_SECRET, STRIPE_SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+- **Database Migrations**: Automatic schema updates via Drizzle on production startup
 - **Static Assets**: Served from dist/public directory
 - **API Routes**: Prefixed with /api for clear separation
+- **Railway Deployment**: Configured with railway.toml and automatic migrations
+- **Authentication Fallbacks**: Graceful degradation when OAuth credentials are missing
 
 ### Key Features
 - **Public Bio Pages**: Accessible via /{username} routes
