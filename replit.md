@@ -14,6 +14,11 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Enhanced authentication system to work without OAuth credentials
 - Added environment variable safety checks and warnings
 
+### Landing Page Enhancement (July 2025)
+- Integrated example bio page directly into landing page as "See It In Action" section
+- Removed "View Example" button to streamline user flow
+- Added call-to-action button below example bio for better conversion
+
 ### Stripe Integration Setup
 - Complete Stripe payment integration with real API keys
 - Professional subscription page with $9/month Pro plan
