@@ -1,10 +1,29 @@
 import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
-import { randomBytes } from "crypto";
+import { randomBytes, scrypt, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+import { registerSchema, loginSchema } from "@shared/schema";
+import { ZodError } from "zod";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -39,6 +58,30 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Local Strategy for email/password authentication
+  passport.use(
+    new LocalStrategy(
+      { usernameField: "email" },
+      async (email, password, done) => {
+        try {
+          const user = await storage.getUserByEmail(email);
+          if (!user || !user.password) {
+            return done(null, false, { message: "Invalid email or password" });
+          }
+
+          const isValid = await comparePasswords(password, user.password);
+          if (!isValid) {
+            return done(null, false, { message: "Invalid email or password" });
+          }
+
+          return done(null, user);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
   // Google OAuth Strategy - only if credentials are provided
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(
@@ -50,17 +93,29 @@ export async function setupAuth(app: Express) {
         },
         async (accessToken, refreshToken, profile, done) => {
           try {
-            // Extract user information from Google profile
-            const googleUser = {
-              id: profile.id,
-              email: profile.emails?.[0]?.value || null,
-              firstName: profile.name?.givenName || null,
-              lastName: profile.name?.familyName || null,
-              profileImageUrl: profile.photos?.[0]?.value || null,
-            };
-
-            // Upsert user in database
-            const user = await storage.upsertUser(googleUser);
+            // Check if user exists with this Google ID
+            let user = await storage.getUserByGoogleId(profile.id);
+            
+            if (!user) {
+              // Check if user exists with this email
+              user = await storage.getUserByEmail(profile.emails?.[0]?.value || "");
+              
+              if (user) {
+                // Link Google account to existing user
+                await storage.linkGoogleAccount(user.id, profile.id);
+              } else {
+                // Create new user
+                const googleUser = {
+                  id: `google_${profile.id}`,
+                  email: profile.emails?.[0]?.value || "",
+                  firstName: profile.name?.givenName || "",
+                  lastName: profile.name?.familyName || "",
+                  profileImageUrl: profile.photos?.[0]?.value || null,
+                  googleId: profile.id,
+                };
+                user = await storage.upsertUser(googleUser);
+              }
+            }
             
             return done(null, user);
           } catch (error) {
@@ -88,42 +143,116 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Auth routes - only if Google OAuth is configured
+  // Registration endpoint
+  app.post("/api/register", async (req, res) => {
+    try {
+      const validatedData = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+
+      // Hash password and create user
+      const hashedPassword = await hashPassword(validatedData.password);
+      const newUser = await storage.createUser({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: validatedData.email,
+        password: hashedPassword,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+      });
+
+      // Log user in
+      req.login(newUser, (err) => {
+        if (err) {
+          console.error("Login after registration error:", err);
+          return res.status(500).json({ message: "Registration successful but login failed" });
+        }
+        res.status(201).json({ 
+          message: "Registration successful", 
+          user: { ...newUser, password: undefined } 
+        });
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Login endpoint
+  app.post("/api/login", (req, res, next) => {
+    try {
+      loginSchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ 
+          message: "Validation error", 
+          errors: error.errors 
+        });
+      }
+    }
+
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Internal server error" });
+      }
+      if (!user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          return res.status(500).json({ message: "Login failed" });
+        }
+        res.json({ 
+          message: "Login successful", 
+          user: { ...user, password: undefined } 
+        });
+      });
+    })(req, res, next);
+  });
+
+  // Google OAuth routes
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     app.get("/api/auth/google", 
       passport.authenticate("google", { scope: ["profile", "email"] })
     );
 
     app.get("/api/auth/google/callback",
-      passport.authenticate("google", { failureRedirect: "/login-failed" }),
+      passport.authenticate("google", { failureRedirect: "/auth?error=google_failed" }),
       (req, res) => {
         // Successful authentication, redirect to dashboard
-        res.redirect("/dashboard");
+        res.redirect("/");
       }
     );
-
-    // Legacy routes for compatibility
-    app.get("/api/login", (req, res) => {
-      res.redirect("/api/auth/google");
-    });
   } else {
-    // Fallback routes when OAuth is not configured
     app.get("/api/auth/google", (req, res) => {
       res.status(503).json({ message: "Google authentication not configured" });
     });
-
-    app.get("/api/login", (req, res) => {
-      res.status(503).json({ message: "Authentication not configured" });
-    });
   }
 
-  app.get("/api/logout", (req, res) => {
+  // Logout endpoint
+  app.post("/api/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
         console.error("Logout error:", err);
+        return res.status(500).json({ message: "Logout failed" });
       }
-      res.redirect("/");
+      res.json({ message: "Logout successful" });
     });
+  });
+
+  // Legacy redirect routes
+  app.get("/api/login", (req, res) => {
+    res.redirect("/auth");
   });
 }
 

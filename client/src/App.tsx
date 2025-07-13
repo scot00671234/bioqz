@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
+import AuthPage from "@/pages/auth-page";
 import Dashboard from "@/pages/dashboard";
 import BioPreview from "@/pages/bio-preview";
 import Subscribe from "@/pages/subscribe";
@@ -22,6 +23,7 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
+          <Route path="/auth" component={AuthPage} />
           <Route path="/demo" component={Demo} />
           <Route path="/:username" component={BioPreview} />
         </>

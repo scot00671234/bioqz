@@ -10,11 +10,11 @@ export default function Landing() {
   const [, navigate] = useLocation();
 
   const handleGetStarted = () => {
-    window.location.href = "/api/login";
+    navigate("/auth");
   };
 
   const handleSignIn = () => {
-    window.location.href = "/api/login";
+    navigate("/auth");
   };
 
   const handleViewDemo = () => {
@@ -272,7 +272,7 @@ export default function Landing() {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => window.location.href = "/api/login"} 
+                  onClick={handleGetStarted}
                   className="w-full bg-brand-600 text-white hover:bg-brand-700"
                 >
                   Upgrade to Pro
