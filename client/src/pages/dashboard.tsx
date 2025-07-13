@@ -65,7 +65,7 @@ export default function Dashboard() {
   };
 
   const handleUpgrade = () => {
-    navigate("/pro-features");
+    navigate("/subscribe");
   };
 
   const handleLogout = () => {

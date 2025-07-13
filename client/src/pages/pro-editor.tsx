@@ -33,10 +33,10 @@ export default function ProEditor() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Redirect to pro-features if user is not pro
+  // Redirect to dashboard if user is not pro
   useEffect(() => {
     if (!isLoading && isAuthenticated && !user?.isPro) {
-      navigate("/pro-features");
+      navigate("/");
     }
   }, [isAuthenticated, isLoading, user?.isPro, navigate]);
 

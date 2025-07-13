@@ -12,7 +12,7 @@ import Subscribe from "@/pages/subscribe";
 import Demo from "@/pages/demo";
 import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
-import ProFeatures from "@/pages/pro-features";
+
 import ProEditor from "@/pages/pro-editor";
 import NotFound from "@/pages/not-found";
 
@@ -34,7 +34,7 @@ function Router() {
           <Route path="/subscribe" component={Subscribe} />
           <Route path="/settings" component={Settings} />
           <Route path="/analytics" component={Analytics} />
-          <Route path="/pro-features" component={ProFeatures} />
+
           <Route path="/pro-editor" component={ProEditor} />
           <Route path="/demo" component={Demo} />
           <Route path="/:username" component={BioPreview} />
