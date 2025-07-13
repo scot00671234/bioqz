@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import BioForm from "@/components/BioForm";
 import ProThemeEditor from "@/components/ProThemeEditor";
+import LiveBioPreview from "@/components/LiveBioPreview";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import type { Bio } from "../../../shared/schema";
@@ -64,10 +65,20 @@ export default function ProEditor() {
 
   const saveThemeMutation = useMutation({
     mutationFn: async (themeData: any) => {
-      return apiRequest("/api/bios", "POST", {
-        ...bio,
-        ...themeData
-      });
+      // Only send valid bio fields to avoid validation errors
+      const validBioData = {
+        name: bio?.name || user?.firstName || "",
+        description: bio?.description || "",
+        avatarUrl: bio?.avatarUrl || "",
+        profilePicture: bio?.profilePicture || "",
+        links: bio?.links || [],
+        theme: themeData.theme || {},
+        layout: themeData.layout || "default",
+        colorScheme: themeData.colorScheme || "default",
+        customCss: themeData.customCss || ""
+      };
+      
+      return apiRequest("/api/bios", "POST", validBioData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
@@ -118,81 +129,61 @@ export default function ProEditor() {
               </Button>
               <div className="flex items-center">
                 <Crown className="h-5 w-5 text-yellow-500 mr-2" />
-                <h1 className="text-2xl font-bold text-brand-600 mr-8 animate-bounce-subtle">bioqz</h1>
-                <span className="text-gray-600">Pro Editor</span>
+                <h1 className="text-2xl font-bold text-gray-900">Pro Editor</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Button
                 onClick={handleViewBio}
                 variant="outline"
-                className="text-brand-600 hover:text-brand-700 border-brand-600 hover:border-brand-700"
-                disabled={!user?.username}
+                className="border-brand-600 text-brand-600 hover:bg-brand-50"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Preview Bio
+                View Live Bio
               </Button>
-              <div className="flex items-center space-x-2">
-                {user?.profileImageUrl && (
-                  <img
-                    src={user.profileImageUrl}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                )}
-                <span className="text-gray-700 font-medium">
-                  {user?.firstName && user?.lastName
-                    ? `${user.firstName} ${user.lastName}`
-                    : user?.email}
-                </span>
-                <div className="flex items-center bg-gradient-to-r from-yellow-100 to-orange-100 px-2 py-1 rounded-full">
-                  <Crown className="h-3 w-3 text-yellow-600 mr-1" />
-                  <span className="text-xs font-medium text-yellow-700">PRO</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Pro Editor Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="warm-shadow border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="pb-6">
-            <CardTitle className="text-center text-2xl font-bold text-gray-900 flex items-center justify-center">
-              <Crown className="h-6 w-6 text-yellow-500 mr-2" />
-              Pro Bio Editor
-            </CardTitle>
-            <p className="text-center text-gray-600 mt-2">
-              Create and customize your bio with unlimited links, custom styling, and advanced features
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Pro Features Notice */}
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <Crown className="h-5 w-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-yellow-800 mb-2">Pro Features Enabled</h3>
-                  <ul className="text-sm text-yellow-700 space-y-1">
-                    <li>• Unlimited links and social connections</li>
-                    <li>• Custom themes and styling options</li>
-                    <li>• Advanced analytics and insights</li>
-                    <li>• Priority support and updates</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Bio Form */}
-            <BioForm bio={bio} />
+      {/* Pro Editor Content - Split Screen Layout */}
+      <div className="flex h-[calc(100vh-80px)]">
+        {/* Left Panel - Editor */}
+        <div className="w-1/2 bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* Basic Bio Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Palette className="h-5 w-5 mr-2" />
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BioForm bio={bio} />
+              </CardContent>
+            </Card>
             
             {/* Pro Theme Editor */}
-            <div className="mt-8 pt-6 border-t">
-              <ProThemeEditor bio={bio} onSave={handleSaveTheme} />
-            </div>
-          </CardContent>
-        </Card>
+            <ProThemeEditor bio={bio} onSave={handleSaveTheme} />
+          </div>
+        </div>
+        
+        {/* Right Panel - Live Preview */}
+        <div className="w-1/2 bg-gray-100 overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 z-10">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Eye className="h-5 w-5 mr-2" />
+              Live Preview
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              See your changes in real-time as you edit
+            </p>
+          </div>
+          <div className="p-6">
+            <LiveBioPreview bio={bio} user={user} />
+          </div>
+        </div>
       </div>
     </div>
   );
