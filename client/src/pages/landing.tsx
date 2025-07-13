@@ -280,7 +280,6 @@ export default function Landing() {
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />
                     <span>Analytics dashboard</span>
                   </li>
-
                 </ul>
                 <Button 
                   onClick={() => window.location.href = "/api/login"} 
