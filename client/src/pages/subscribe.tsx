@@ -89,7 +89,7 @@ export default function Subscribe() {
     }
 
     // Create subscription as soon as the page loads
-    apiRequest("POST", "/api/get-or-create-subscription")
+    apiRequest("/api/get-or-create-subscription", "POST")
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to create subscription");

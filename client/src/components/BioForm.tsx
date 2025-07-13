@@ -86,7 +86,7 @@ export default function BioForm({ bio }: BioFormProps) {
 
   const bioMutation = useMutation({
     mutationFn: async (data: BioFormData & { links: LinkFormData[], profilePicture?: string }) => {
-      const bioResponse = await apiRequest("POST", "/api/bios", {
+      const bioResponse = await apiRequest("/api/bios", "POST", {
         ...data,
         profilePicture,
       });
@@ -122,7 +122,7 @@ export default function BioForm({ bio }: BioFormProps) {
 
   const usernameMutation = useMutation({
     mutationFn: async (username: string) => {
-      const response = await apiRequest("POST", "/api/users/username", { username });
+      const response = await apiRequest("/api/users/username", "POST", { username });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to update username");

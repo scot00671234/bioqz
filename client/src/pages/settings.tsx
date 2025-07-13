@@ -45,7 +45,7 @@ export default function Settings() {
 
   const deleteAccountMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("DELETE", "/api/users/account");
+      const response = await apiRequest("/api/users/account", "DELETE");
       return response.json();
     },
     onSuccess: () => {
@@ -77,7 +77,7 @@ export default function Settings() {
 
   const cancelSubscriptionMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/cancel-subscription");
+      const response = await apiRequest("/api/cancel-subscription", "POST");
       return response.json();
     },
     onSuccess: () => {
