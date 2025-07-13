@@ -120,17 +120,22 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
 
   // Update live preview when form values change
   const watchedValues = form.watch();
+  const watchedName = watchedValues.name;
+  const watchedDescription = watchedValues.description;
+  const watchedUsername = watchedValues.username;
+  const watchedAvatarUrl = watchedValues.avatarUrl;
+  
   useEffect(() => {
     setLivePreview(prev => ({
       ...prev,
-      name: watchedValues.name || user?.firstName || "",
-      description: watchedValues.description || "",
-      username: watchedValues.username || "",
-      avatarUrl: watchedValues.avatarUrl || "",
-      profilePicture: watchedValues.profilePicture || profilePicture,
+      name: watchedName || user?.firstName || "",
+      description: watchedDescription || "",
+      username: watchedUsername || "",
+      avatarUrl: watchedAvatarUrl || "",
+      profilePicture: profilePicture,
       links: links
     }));
-  }, [watchedValues, links, profilePicture, user?.firstName]);
+  }, [watchedName, watchedDescription, watchedUsername, watchedAvatarUrl, links, profilePicture, user?.firstName]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: BioFormData) => {

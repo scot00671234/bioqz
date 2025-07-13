@@ -77,7 +77,8 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
   const fontFamily = previewState?.theme?.fontFamily || bio?.theme?.fontFamily || "inter";
   const fontSize = previewState?.theme?.fontSize || bio?.theme?.fontSize || "medium";
   
-
+  // Add console log to verify color scheme updates
+  console.log("LiveBioPreview render - colorScheme:", colorScheme, "previewState:", previewState);
   
   const colors = colorSchemes[colorScheme as keyof typeof colorSchemes];
   const font = fontOptions[fontFamily as keyof typeof fontOptions];

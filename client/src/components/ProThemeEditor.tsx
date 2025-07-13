@@ -131,8 +131,8 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
   // Update preview in real-time whenever any setting changes
   const updatePreview = (updates: any) => {
     const newPreviewState = {
-      colorScheme: updates.colorScheme || colorScheme,
-      layout: updates.layout || layout,
+      colorScheme: updates.colorScheme !== undefined ? updates.colorScheme : colorScheme,
+      layout: updates.layout !== undefined ? updates.layout : layout,
       theme: {
         ...theme,
         fontFamily: updates.theme?.fontFamily || fontFamily,
@@ -220,9 +220,12 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
             <CardContent>
               <Label htmlFor="colorScheme">Choose a color scheme</Label>
               <Select value={colorScheme} onValueChange={(value) => {
-
                 setColorScheme(value);
                 updatePreview({ colorScheme: value });
+                toast({
+                  title: "Color scheme updated!",
+                  description: `Applied ${colorSchemes[value as keyof typeof colorSchemes]?.name || value} theme`,
+                });
               }}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Select color scheme" />
