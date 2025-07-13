@@ -131,16 +131,16 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
   // Update preview in real-time whenever any setting changes
   const updatePreview = (updates: any) => {
     const newPreviewState = {
-      colorScheme,
-      layout,
+      colorScheme: updates.colorScheme || colorScheme,
+      layout: updates.layout || layout,
       theme: {
         ...theme,
-        fontFamily,
-        fontSize,
+        fontFamily: updates.theme?.fontFamily || fontFamily,
+        fontSize: updates.theme?.fontSize || fontSize,
         ...updates.theme
-      },
-      ...updates
+      }
     };
+    console.log("ProThemeEditor - updatePreview called with:", updates, "newPreviewState:", newPreviewState);
     onPreviewChange(newPreviewState);
   };
 
@@ -220,6 +220,7 @@ export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewSt
             <CardContent>
               <Label htmlFor="colorScheme">Choose a color scheme</Label>
               <Select value={colorScheme} onValueChange={(value) => {
+                console.log("ProThemeEditor - Changing color scheme to:", value);
                 setColorScheme(value);
                 updatePreview({ colorScheme: value });
               }}>

@@ -11,46 +11,46 @@ interface LiveBioPreviewProps {
 
 const colorSchemes = {
   default: {
-    name: "Ocean Blue",
-    primary: "#3B82F6",
-    secondary: "#1E40AF",
-    background: "#F8FAFC",
-    text: "#1E293B"
+    name: "Default",
+    primary: "#6366f1",
+    secondary: "#8b5cf6",
+    background: "#ffffff",
+    text: "#1f2937"
   },
   sunset: {
-    name: "Sunset Orange",
-    primary: "#F97316",
-    secondary: "#EA580C",
-    background: "#FFF7ED",
-    text: "#9A3412"
+    name: "Sunset",
+    primary: "#f59e0b",
+    secondary: "#ef4444",
+    background: "#fef3c7",
+    text: "#92400e"
+  },
+  ocean: {
+    name: "Ocean",
+    primary: "#0ea5e9",
+    secondary: "#06b6d4",
+    background: "#e0f2fe",
+    text: "#0c4a6e"
   },
   forest: {
-    name: "Forest Green",
-    primary: "#10B981",
+    name: "Forest",
+    primary: "#10b981",
     secondary: "#059669",
-    background: "#ECFDF5",
-    text: "#047857"
-  },
-  purple: {
-    name: "Royal Purple",
-    primary: "#8B5CF6",
-    secondary: "#7C3AED",
-    background: "#FAF5FF",
-    text: "#5B21B6"
-  },
-  rose: {
-    name: "Rose Pink",
-    primary: "#F43F5E",
-    secondary: "#E11D48",
-    background: "#FFF1F2",
-    text: "#BE123C"
+    background: "#d1fae5",
+    text: "#064e3b"
   },
   midnight: {
-    name: "Midnight Dark",
-    primary: "#6366F1",
-    secondary: "#4F46E5",
-    background: "#1E293B",
-    text: "#F1F5F9"
+    name: "Midnight",
+    primary: "#6366f1",
+    secondary: "#8b5cf6",
+    background: "#1f2937",
+    text: "#f9fafb"
+  },
+  rose: {
+    name: "Rose",
+    primary: "#f43f5e",
+    secondary: "#ec4899",
+    background: "#fdf2f8",
+    text: "#881337"
   }
 };
 
@@ -76,6 +76,9 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
   const layout = previewState?.layout || bio?.layout || "default";
   const fontFamily = previewState?.theme?.fontFamily || bio?.theme?.fontFamily || "inter";
   const fontSize = previewState?.theme?.fontSize || bio?.theme?.fontSize || "medium";
+  
+  // Debug logging
+  console.log("LiveBioPreview - colorScheme:", colorScheme, "previewState:", previewState);
   
   const colors = colorSchemes[colorScheme as keyof typeof colorSchemes];
   const font = fontOptions[fontFamily as keyof typeof fontOptions];
