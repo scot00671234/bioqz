@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 interface ProThemeEditorProps {
   bio: any;
   onSave: (themeData: any) => void;
+  onPreviewChange: (previewState: any) => void;
+  previewState: any;
 }
 
 const colorSchemes = {
@@ -118,13 +120,29 @@ const fontSizes = {
   xlarge: { name: "Extra Large", size: "20px" }
 };
 
-export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
-  const [colorScheme, setColorScheme] = useState(bio?.colorScheme || "default");
-  const [layout, setLayout] = useState(bio?.layout || "default");
-  const [theme, setTheme] = useState(bio?.theme || {});
-  const [fontFamily, setFontFamily] = useState(bio?.theme?.fontFamily || "inter");
-  const [fontSize, setFontSize] = useState(bio?.theme?.fontSize || "medium");
+export default function ProThemeEditor({ bio, onSave, onPreviewChange, previewState }: ProThemeEditorProps) {
+  const [colorScheme, setColorScheme] = useState(previewState?.colorScheme || bio?.colorScheme || "default");
+  const [layout, setLayout] = useState(previewState?.layout || bio?.layout || "default");
+  const [theme, setTheme] = useState(previewState?.theme || bio?.theme || {});
+  const [fontFamily, setFontFamily] = useState(previewState?.theme?.fontFamily || bio?.theme?.fontFamily || "inter");
+  const [fontSize, setFontSize] = useState(previewState?.theme?.fontSize || bio?.theme?.fontSize || "medium");
   const { toast } = useToast();
+
+  // Update preview in real-time whenever any setting changes
+  const updatePreview = (updates: any) => {
+    const newPreviewState = {
+      colorScheme,
+      layout,
+      theme: {
+        ...theme,
+        fontFamily,
+        fontSize,
+        ...updates.theme
+      },
+      ...updates
+    };
+    onPreviewChange(newPreviewState);
+  };
 
   // Update preview in real-time whenever settings change
   const currentPreviewData = {
@@ -201,7 +219,10 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
             </CardHeader>
             <CardContent>
               <Label htmlFor="colorScheme">Choose a color scheme</Label>
-              <Select value={colorScheme} onValueChange={setColorScheme}>
+              <Select value={colorScheme} onValueChange={(value) => {
+                setColorScheme(value);
+                updatePreview({ colorScheme: value });
+              }}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Select color scheme" />
                 </SelectTrigger>
@@ -319,7 +340,10 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
             </CardHeader>
             <CardContent>
               <Label htmlFor="layout">Choose a layout</Label>
-              <Select value={layout} onValueChange={setLayout}>
+              <Select value={layout} onValueChange={(value) => {
+                setLayout(value);
+                updatePreview({ layout: value });
+              }}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Select layout" />
                 </SelectTrigger>
@@ -445,7 +469,10 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="fontFamily">Font Family</Label>
-                <Select value={fontFamily} onValueChange={setFontFamily}>
+                <Select value={fontFamily} onValueChange={(value) => {
+                  setFontFamily(value);
+                  updatePreview({ theme: { fontFamily: value } });
+                }}>
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Select font family" />
                   </SelectTrigger>
@@ -466,7 +493,10 @@ export default function ProThemeEditor({ bio, onSave }: ProThemeEditorProps) {
 
               <div>
                 <Label htmlFor="fontSize">Font Size</Label>
-                <Select value={fontSize} onValueChange={setFontSize}>
+                <Select value={fontSize} onValueChange={(value) => {
+                  setFontSize(value);
+                  updatePreview({ theme: { fontSize: value } });
+                }}>
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Select font size" />
                   </SelectTrigger>

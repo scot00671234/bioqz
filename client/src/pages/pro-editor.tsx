@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Crown, ArrowLeft, Eye, ExternalLink, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import BioForm from "@/components/BioForm";
 import ProThemeEditor from "@/components/ProThemeEditor";
@@ -46,6 +46,24 @@ export default function ProEditor() {
     enabled: isAuthenticated,
     retry: false,
   });
+
+  // State for real-time preview
+  const [previewState, setPreviewState] = useState({
+    colorScheme: bio?.colorScheme || "default",
+    layout: bio?.layout || "default",
+    theme: bio?.theme || {},
+  });
+
+  // Update preview state when bio data changes
+  useEffect(() => {
+    if (bio) {
+      setPreviewState({
+        colorScheme: bio.colorScheme || "default",
+        layout: bio.layout || "default",
+        theme: bio.theme || {},
+      });
+    }
+  }, [bio]);
 
   const handleViewBio = () => {
     if (user?.username) {
@@ -165,7 +183,12 @@ export default function ProEditor() {
             </Card>
             
             {/* Pro Theme Editor */}
-            <ProThemeEditor bio={bio} onSave={handleSaveTheme} />
+            <ProThemeEditor 
+              bio={bio} 
+              onSave={handleSaveTheme}
+              onPreviewChange={setPreviewState}
+              previewState={previewState}
+            />
           </div>
         </div>
         
@@ -181,7 +204,11 @@ export default function ProEditor() {
             </p>
           </div>
           <div className="p-6">
-            <LiveBioPreview bio={bio} user={user} />
+            <LiveBioPreview 
+              bio={bio} 
+              user={user} 
+              previewState={previewState}
+            />
           </div>
         </div>
       </div>

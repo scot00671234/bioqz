@@ -6,6 +6,7 @@ import type { Bio, User as UserType } from "../../../shared/schema";
 interface LiveBioPreviewProps {
   bio?: Bio | null;
   user?: UserType | null;
+  previewState?: any;
 }
 
 const colorSchemes = {
@@ -69,11 +70,12 @@ const fontSizes = {
   xlarge: { name: "Extra Large", size: "20px" }
 };
 
-export default function LiveBioPreview({ bio, user }: LiveBioPreviewProps) {
-  const colorScheme = bio?.colorScheme || "default";
-  const layout = bio?.layout || "default";
-  const fontFamily = bio?.theme?.fontFamily || "inter";
-  const fontSize = bio?.theme?.fontSize || "medium";
+export default function LiveBioPreview({ bio, user, previewState }: LiveBioPreviewProps) {
+  // Use preview state if available, otherwise fall back to bio data
+  const colorScheme = previewState?.colorScheme || bio?.colorScheme || "default";
+  const layout = previewState?.layout || bio?.layout || "default";
+  const fontFamily = previewState?.theme?.fontFamily || bio?.theme?.fontFamily || "inter";
+  const fontSize = previewState?.theme?.fontSize || bio?.theme?.fontSize || "medium";
   
   const colors = colorSchemes[colorScheme as keyof typeof colorSchemes];
   const font = fontOptions[fontFamily as keyof typeof fontOptions];
