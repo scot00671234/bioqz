@@ -37,6 +37,9 @@ export const users = pgTable("users", {
   isPaid: boolean("is_paid").default(false),
   isDemoMode: boolean("is_demo_mode").default(false),
   googleId: varchar("google_id"), // For Google OAuth
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: varchar("email_verification_token"),
+  emailVerificationExpires: timestamp("email_verification_expires"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
