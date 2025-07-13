@@ -1,13 +1,17 @@
 import {
   users,
   bios,
+  bioViews,
+  linkClicks,
   type User,
   type UpsertUser,
   type Bio,
   type InsertBio,
+  type BioView,
+  type LinkClick,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql, and, gte } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -30,6 +34,18 @@ export interface IStorage {
   createBio(bio: InsertBio): Promise<Bio>;
   updateBio(userId: string, bio: Partial<InsertBio>): Promise<Bio>;
   deleteBio(userId: string): Promise<void>;
+
+  // Analytics operations
+  trackBioView(userId: string, bioId: number, ipAddress?: string, userAgent?: string, referrer?: string): Promise<void>;
+  trackLinkClick(userId: string, bioId: number, linkUrl: string, linkTitle?: string, ipAddress?: string, userAgent?: string, referrer?: string): Promise<void>;
+  getAnalytics(userId: string): Promise<{
+    totalViews: number;
+    totalClicks: number;
+    clickRate: number;
+    weeklyGrowth: number;
+    topLinks: Array<{ title: string; clicks: number; url: string }>;
+    dailyViews: Array<{ date: string; views: number }>;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -188,6 +204,139 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBio(userId: string): Promise<void> {
     await db.delete(bios).where(eq(bios.userId, userId));
+  }
+
+  // Analytics operations
+  async trackBioView(userId: string, bioId: number, ipAddress?: string, userAgent?: string, referrer?: string): Promise<void> {
+    await db.insert(bioViews).values({
+      userId,
+      bioId,
+      ipAddress,
+      userAgent,
+      referrer,
+    });
+  }
+
+  async trackLinkClick(userId: string, bioId: number, linkUrl: string, linkTitle?: string, ipAddress?: string, userAgent?: string, referrer?: string): Promise<void> {
+    await db.insert(linkClicks).values({
+      userId,
+      bioId,
+      linkUrl,
+      linkTitle,
+      ipAddress,
+      userAgent,
+      referrer,
+    });
+  }
+
+  async getAnalytics(userId: string): Promise<{
+    totalViews: number;
+    totalClicks: number;
+    clickRate: number;
+    weeklyGrowth: number;
+    topLinks: Array<{ title: string; clicks: number; url: string }>;
+    dailyViews: Array<{ date: string; views: number }>;
+  }> {
+    // Get total views
+    const [viewsResult] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(bioViews)
+      .where(eq(bioViews.userId, userId));
+
+    const totalViews = viewsResult?.count || 0;
+
+    // Get total clicks
+    const [clicksResult] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(linkClicks)
+      .where(eq(linkClicks.userId, userId));
+
+    const totalClicks = clicksResult?.count || 0;
+
+    // Calculate click rate
+    const clickRate = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+
+    // Get weekly growth (last 7 days vs previous 7 days)
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+    const [thisWeekViews] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(bioViews)
+      .where(and(
+        eq(bioViews.userId, userId),
+        gte(bioViews.viewedAt, weekAgo)
+      ));
+
+    const [lastWeekViews] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(bioViews)
+      .where(and(
+        eq(bioViews.userId, userId),
+        gte(bioViews.viewedAt, twoWeeksAgo),
+        sql`${bioViews.viewedAt} < ${weekAgo}`
+      ));
+
+    const thisWeekCount = thisWeekViews?.count || 0;
+    const lastWeekCount = lastWeekViews?.count || 0;
+    const weeklyGrowth = lastWeekCount > 0 ? ((thisWeekCount - lastWeekCount) / lastWeekCount) * 100 : 0;
+
+    // Get top performing links
+    const topLinksResult = await db
+      .select({
+        url: linkClicks.linkUrl,
+        title: linkClicks.linkTitle,
+        clicks: sql<number>`COUNT(*)`
+      })
+      .from(linkClicks)
+      .where(eq(linkClicks.userId, userId))
+      .groupBy(linkClicks.linkUrl, linkClicks.linkTitle)
+      .orderBy(desc(sql`COUNT(*)`))
+      .limit(5);
+
+    const topLinks = topLinksResult.map(link => ({
+      title: link.title || 'Unknown',
+      clicks: link.clicks,
+      url: link.url
+    }));
+
+    // Get daily views for last 7 days
+    const dailyViewsResult = await db
+      .select({
+        date: sql<string>`DATE(${bioViews.viewedAt})`,
+        views: sql<number>`COUNT(*)`
+      })
+      .from(bioViews)
+      .where(and(
+        eq(bioViews.userId, userId),
+        gte(bioViews.viewedAt, weekAgo)
+      ))
+      .groupBy(sql`DATE(${bioViews.viewedAt})`)
+      .orderBy(sql`DATE(${bioViews.viewedAt})`);
+
+    // Fill in missing days with 0 views
+    const dailyViews = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      const existing = dailyViewsResult.find(d => d.date === dateStr);
+      dailyViews.push({
+        date: dayName,
+        views: existing?.views || 0
+      });
+    }
+
+    return {
+      totalViews,
+      totalClicks,
+      clickRate: Math.round(clickRate * 100) / 100,
+      weeklyGrowth: Math.round(weeklyGrowth * 100) / 100,
+      topLinks,
+      dailyViews
+    };
   }
 }
 

@@ -38,6 +38,19 @@ export default function Dashboard() {
     retry: false,
   });
 
+  const { data: analytics } = useQuery<{
+    totalViews: number;
+    totalClicks: number;
+    clickRate: number;
+    weeklyGrowth: number;
+    topLinks: Array<{ title: string; clicks: number; url: string }>;
+    dailyViews: Array<{ date: string; views: number }>;
+  }>({
+    queryKey: ["/api/analytics"],
+    enabled: isAuthenticated && user?.isPaid,
+    retry: false,
+  });
+
   const handleViewBio = () => {
     if (user?.username) {
       navigate(`/${user.username}`);
@@ -267,7 +280,7 @@ export default function Dashboard() {
                         Total Views
                       </span>
                       <span className="font-semibold text-gray-900">
-                        {user?.isPaid ? "247" : "—"}
+                        {user?.isPaid ? (analytics?.totalViews || 0) : "—"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center mb-3">
@@ -276,14 +289,14 @@ export default function Dashboard() {
                         Link Clicks
                       </span>
                       <span className="font-semibold text-gray-900">
-                        {user?.isPaid ? "89" : "—"}
+                        {user?.isPaid ? (analytics?.totalClicks || 0) : "—"}
                       </span>
                     </div>
                     <div className="border-t border-gray-200 pt-3 mt-3">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">This Week</span>
-                        <span className="font-semibold text-emerald-600">
-                          {user?.isPaid ? "+12%" : "—"}
+                        <span className={`font-semibold ${analytics?.weeklyGrowth && analytics.weeklyGrowth > 0 ? 'text-emerald-600' : 'text-gray-600'}`}>
+                          {user?.isPaid ? (analytics?.weeklyGrowth ? `${analytics.weeklyGrowth > 0 ? '+' : ''}${analytics.weeklyGrowth}%` : "0%") : "—"}
                         </span>
                       </div>
                     </div>

@@ -53,8 +53,35 @@ export const bios = pgTable("bios", {
   avatarUrl: varchar("avatar_url"),
   profilePicture: varchar("profile_picture"),
   links: jsonb("links").default([]),
+  theme: jsonb("theme").default({}), // Pro feature: custom theme
+  layout: varchar("layout").default("default"), // Pro feature: layout type
+  colorScheme: varchar("color_scheme").default("default"), // Pro feature: color scheme
+  customCss: text("custom_css"), // Pro feature: custom CSS
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Analytics tables
+export const bioViews = pgTable("bio_views", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  bioId: serial("bio_id").notNull().references(() => bios.id),
+  viewedAt: timestamp("viewed_at").defaultNow(),
+  ipAddress: varchar("ip_address"),
+  userAgent: varchar("user_agent"),
+  referrer: varchar("referrer"),
+});
+
+export const linkClicks = pgTable("link_clicks", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  bioId: serial("bio_id").notNull().references(() => bios.id),
+  linkUrl: varchar("link_url").notNull(),
+  linkTitle: varchar("link_title"),
+  clickedAt: timestamp("clicked_at").defaultNow(),
+  ipAddress: varchar("ip_address"),
+  userAgent: varchar("user_agent"),
+  referrer: varchar("referrer"),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
@@ -68,6 +95,8 @@ export const insertBioSchema = createInsertSchema(bios).omit({
 
 export type InsertBio = z.infer<typeof insertBioSchema>;
 export type Bio = typeof bios.$inferSelect;
+export type BioView = typeof bioViews.$inferSelect;
+export type LinkClick = typeof linkClicks.$inferSelect;
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,

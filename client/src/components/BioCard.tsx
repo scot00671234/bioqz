@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface BioCardProps {
   bio: any;
@@ -8,7 +9,20 @@ interface BioCardProps {
 }
 
 export default function BioCard({ bio, username }: BioCardProps) {
-  const handleLinkClick = (url: string) => {
+  const handleLinkClick = async (url: string, title: string) => {
+    // Track the click
+    try {
+      await apiRequest("/api/track-click", "POST", {
+        userId: bio.userId,
+        bioId: bio.id,
+        linkUrl: url,
+        linkTitle: title
+      });
+    } catch (error) {
+      console.error("Error tracking click:", error);
+      // Don't prevent the link from opening if tracking fails
+    }
+    
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -43,7 +57,7 @@ export default function BioCard({ bio, username }: BioCardProps) {
           {bio.links && Array.isArray(bio.links) && bio.links.map((link: any, index: number) => (
             <Button
               key={index}
-              onClick={() => handleLinkClick(link.url)}
+              onClick={() => handleLinkClick(link.url, link.title)}
               className="w-full bg-brand-600 text-white hover:bg-brand-700 py-3 h-auto"
               variant="default"
             >

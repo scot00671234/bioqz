@@ -1,19 +1,22 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, ArrowLeft, Eye, ExternalLink } from "lucide-react";
+import { Crown, ArrowLeft, Eye, ExternalLink, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import BioForm from "@/components/BioForm";
+import ProThemeEditor from "@/components/ProThemeEditor";
 import { useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 import type { Bio } from "../../../shared/schema";
 
 export default function ProEditor() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -57,6 +60,33 @@ export default function ProEditor() {
 
   const handleBackToDashboard = () => {
     navigate("/");
+  };
+
+  const saveThemeMutation = useMutation({
+    mutationFn: async (themeData: any) => {
+      return apiRequest(`/api/bios`, "POST", {
+        ...bio,
+        ...themeData
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bios/me"] });
+      toast({
+        title: "Theme Saved",
+        description: "Your theme customizations have been saved successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save theme. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveTheme = (themeData: any) => {
+    saveThemeMutation.mutate(themeData);
   };
 
   if (isLoading) {
@@ -156,6 +186,11 @@ export default function ProEditor() {
 
             {/* Bio Form */}
             <BioForm bio={bio} />
+            
+            {/* Pro Theme Editor */}
+            <div className="mt-8 pt-6 border-t">
+              <ProThemeEditor bio={bio} onSave={handleSaveTheme} />
+            </div>
           </CardContent>
         </Card>
       </div>

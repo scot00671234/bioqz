@@ -5,6 +5,7 @@ import { ArrowLeft, TrendingUp, Eye, MousePointer, Users, Calendar, ExternalLink
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Analytics() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -47,31 +48,21 @@ export default function Analytics() {
     navigate("/subscribe");
   };
 
-  // Mock analytics data for demonstration
-  const analyticsData = {
-    totalViews: 1247,
-    totalClicks: 389,
-    clickRate: 31.2,
-    weeklyGrowth: 15.3,
-    topLinks: [
-      { title: "Instagram", clicks: 156, url: "https://instagram.com" },
-      { title: "Portfolio", clicks: 98, url: "https://portfolio.com" },
-      { title: "YouTube", clicks: 67, url: "https://youtube.com" },
-      { title: "LinkedIn", clicks: 45, url: "https://linkedin.com" },
-      { title: "Twitter", clicks: 23, url: "https://twitter.com" },
-    ],
-    dailyViews: [
-      { date: "Mon", views: 67 },
-      { date: "Tue", views: 89 },
-      { date: "Wed", views: 45 },
-      { date: "Thu", views: 123 },
-      { date: "Fri", views: 156 },
-      { date: "Sat", views: 234 },
-      { date: "Sun", views: 178 },
-    ],
-  };
+  // Fetch real analytics data
+  const { data: analyticsData, isLoading: analyticsLoading } = useQuery<{
+    totalViews: number;
+    totalClicks: number;
+    clickRate: number;
+    weeklyGrowth: number;
+    topLinks: Array<{ title: string; clicks: number; url: string }>;
+    dailyViews: Array<{ date: string; views: number }>;
+  }>({
+    queryKey: ["/api/analytics"],
+    enabled: isAuthenticated && user?.isPaid,
+    retry: false,
+  });
 
-  if (isLoading) {
+  if (isLoading || analyticsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full" />
@@ -103,6 +94,17 @@ export default function Analytics() {
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  if (!analyticsData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Analytics Not Available</h2>
+          <p className="text-gray-600">Failed to load analytics data.</p>
+        </div>
       </div>
     );
   }

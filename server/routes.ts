@@ -65,6 +65,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics routes
+  app.get('/api/analytics', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const analytics = await storage.getAnalytics(userId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
   // Bio routes
   app.get('/api/bios/me', isAuthenticated, async (req: any, res) => {
     try {
@@ -115,10 +127,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Bio not found" });
       }
 
+      // Track bio view
+      const ipAddress = req.ip || req.connection.remoteAddress;
+      const userAgent = req.get('User-Agent');
+      const referrer = req.get('Referer');
+      
+      try {
+        await storage.trackBioView(bio.userId, bio.id, ipAddress, userAgent, referrer);
+      } catch (trackError) {
+        console.error("Error tracking bio view:", trackError);
+        // Don't fail the request if tracking fails
+      }
+
       res.json(bio);
     } catch (error) {
       console.error("Error fetching public bio:", error);
       res.status(500).json({ message: "Failed to fetch bio" });
+    }
+  });
+
+  // Track link clicks
+  app.post('/api/track-click', async (req, res) => {
+    try {
+      const { userId, bioId, linkUrl, linkTitle } = req.body;
+      
+      if (!userId || !bioId || !linkUrl) {
+        return res.status(400).json({ message: "userId, bioId and linkUrl are required" });
+      }
+
+      const ipAddress = req.ip || req.connection.remoteAddress;
+      const userAgent = req.get('User-Agent');
+      const referrer = req.get('Referer');
+      
+      await storage.trackLinkClick(userId, bioId, linkUrl, linkTitle, ipAddress, userAgent, referrer);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking link click:", error);
+      res.status(500).json({ message: "Failed to track click" });
     }
   });
 
