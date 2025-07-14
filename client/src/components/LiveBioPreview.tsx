@@ -234,7 +234,16 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
         {/* Footer */}
         <div className="text-center mt-8 pt-6 border-t border-gray-200">
           <div className="text-xs opacity-60">
-            Powered by bioqz
+            Powered by{" "}
+            <a 
+              href="https://bioqz.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ color: colors.primary }} 
+              className="hover:underline cursor-pointer"
+            >
+              bioqz
+            </a>
           </div>
         </div>
       </CardContent>

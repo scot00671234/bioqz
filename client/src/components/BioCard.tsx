@@ -26,13 +26,49 @@ export default function BioCard({ bio, username }: BioCardProps) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Get theme colors from bio data
-  const themeColors = bio.theme?.colors || {
-    primary: "#6366f1",
-    secondary: "#8b5cf6",
-    background: "#ffffff",
-    text: "#1f2937"
+  // Color schemes - matching LiveBioPreview
+  const colorSchemes = {
+    default: {
+      primary: "#6366f1",
+      secondary: "#8b5cf6",
+      background: "#ffffff",
+      text: "#1f2937"
+    },
+    sunset: {
+      primary: "#f59e0b",
+      secondary: "#ef4444",
+      background: "#fef3c7",
+      text: "#92400e"
+    },
+    ocean: {
+      primary: "#0ea5e9",
+      secondary: "#06b6d4",
+      background: "#e0f2fe",
+      text: "#0c4a6e"
+    },
+    forest: {
+      primary: "#10b981",
+      secondary: "#059669",
+      background: "#d1fae5",
+      text: "#064e3b"
+    },
+    midnight: {
+      primary: "#6366f1",
+      secondary: "#8b5cf6",
+      background: "#1f2937",
+      text: "#f9fafb"
+    },
+    rose: {
+      primary: "#f43f5e",
+      secondary: "#ec4899",
+      background: "#fdf2f8",
+      text: "#881337"
+    }
   };
+
+  // Get theme colors from colorScheme field
+  const colorScheme = bio.colorScheme || "default";
+  const themeColors = colorSchemes[colorScheme as keyof typeof colorSchemes] || colorSchemes.default;
 
   const cardStyle = {
     backgroundColor: themeColors.background,
@@ -145,7 +181,16 @@ export default function BioCard({ bio, username }: BioCardProps) {
         {/* Powered by */}
         <div className="mt-8 pt-6 border-t" style={{ borderColor: themeColors.text, opacity: 0.2 }}>
           <p className="text-sm" style={{ color: themeColors.text, opacity: 0.6 }}>
-            Powered by <span style={{ color: themeColors.primary }} className="font-semibold">bioqz</span>
+            Powered by{" "}
+            <a 
+              href="https://bioqz.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ color: themeColors.primary }} 
+              className="font-semibold hover:underline cursor-pointer"
+            >
+              bioqz
+            </a>
           </p>
         </div>
       </CardContent>

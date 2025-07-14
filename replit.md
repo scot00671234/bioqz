@@ -6,6 +6,16 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
+### Railway Production Fixes - Color Scheme & Links (July 2025)
+- **RESOLVED: Fixed color scheme persistence issue in live bio pages** - BioCard now properly reads colorScheme field from database instead of deprecated theme.colors
+- **RESOLVED: Made "Powered by bioqz" clickable** - Both BioCard and LiveBioPreview now link to bioqz.com
+- **CONFIRMED: Email verification system ready for Railway** - Flexible SMTP configuration supports Gmail, SendGrid, or any SMTP provider
+- **VERIFIED: Color scheme changes now persist correctly** - Pro editor color changes now apply to both preview and live bio pages
+- Enhanced BioCard component with proper color scheme mapping matching LiveBioPreview
+- Updated Railway production deployment with all fixes applied and tested
+
+## Recent Changes (July 2025)
+
 ### Railway Production Deployment Fixes (July 2025)
 - Fixed PostgreSQL table creation issues in Railway production deployment
 - Moved drizzle-kit to production dependencies for proper database migrations
