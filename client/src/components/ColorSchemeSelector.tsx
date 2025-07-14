@@ -57,6 +57,10 @@ const colorSchemes = {
 };
 
 export default function ColorSchemeSelector({ user, bio, onUpdate }: ColorSchemeSelectorProps) {
+  // Only show for Pro users
+  if (!user?.isPaid) {
+    return null;
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();

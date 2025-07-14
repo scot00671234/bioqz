@@ -413,40 +413,43 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
                 />
               </div>
 
-              {/* Color Scheme */}
-              <div className="space-y-2">
-                <Label htmlFor="colorScheme" className="flex items-center">
-                  <Palette className="h-4 w-4 mr-2" />
-                  Color Scheme
-                </Label>
-                <Select
-                  value={form.watch("colorScheme") || "default"}
-                  onValueChange={(value) => {
-                    form.setValue("colorScheme", value);
-                    toast({
-                      title: "Color scheme updated!",
-                      description: `Applied ${colorSchemes[value as keyof typeof colorSchemes]?.name || value} theme`,
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a color scheme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(colorSchemes).map(([key, scheme]) => (
-                      <SelectItem key={key} value={key}>
-                        <div className="flex items-center">
-                          <div 
-                            className="w-4 h-4 rounded-full mr-2 border"
-                            style={{ backgroundColor: scheme.primary }}
-                          />
-                          {scheme.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Color Scheme - Pro Feature Only */}
+              {user?.isPaid && (
+                <div className="space-y-2">
+                  <Label htmlFor="colorScheme" className="flex items-center">
+                    <Palette className="h-4 w-4 mr-2" />
+                    Color Scheme
+                    <Crown className="h-4 w-4 ml-2 text-yellow-500" />
+                  </Label>
+                  <Select
+                    value={form.watch("colorScheme") || "default"}
+                    onValueChange={(value) => {
+                      form.setValue("colorScheme", value);
+                      toast({
+                        title: "Color scheme updated!",
+                        description: `Applied ${colorSchemes[value as keyof typeof colorSchemes]?.name || value} theme`,
+                      });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a color scheme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(colorSchemes).map(([key, scheme]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center">
+                            <div 
+                              className="w-4 h-4 rounded-full mr-2 border"
+                              style={{ backgroundColor: scheme.primary }}
+                            />
+                            {scheme.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </CardContent>
           </Card>
 
