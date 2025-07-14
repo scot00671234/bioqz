@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm run build && npm start"
+startCommand = "npm run build && node scripts/migrate-and-start.js"
 healthcheckPath = "/"
 healthcheckTimeout = 120
 restartPolicyType = "always"

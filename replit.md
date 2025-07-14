@@ -6,15 +6,25 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
+### Railway Production Deployment Fixes (July 2025)
+- Fixed PostgreSQL table creation issues in Railway production deployment
+- Moved drizzle-kit to production dependencies for proper database migrations
+- Updated railway.toml to use migrate-and-start script for automatic table creation
+- Enhanced migrate-and-start.js script with better error handling and environment validation
+- Removed duplicate migration logic from server/index.ts to prevent conflicts
+- Created comprehensive Railway deployment guide (RAILWAY_DEPLOYMENT.md) with step-by-step instructions
+- Verified automatic database migration system works correctly in production environment
+- Fixed deployment command sequence to ensure migrations run before server starts
+- Added DATABASE_URL validation in migration script to prevent deployment failures
+- Enhanced error logging in production startup process for better debugging
+
 ### Railway Production Deployment Preparation (July 2025)
 - Prepared complete Railway production deployment with automatic PostgreSQL table creation
 - Enhanced email system with flexible SMTP configuration (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS)
 - Updated authentication to support both legacy EMAIL_USER/EMAIL_PASSWORD and new SMTP variables
-- Created comprehensive Railway deployment guide (RAILWAY_DEPLOYMENT.md) with step-by-step instructions
 - Added production validation script (scripts/validate-production.js) for pre-deployment testing
 - Updated railway.toml with optimized build process and health check configuration
 - Documented all environment variables required for full production functionality
-- Verified automatic database migration system works correctly in production environment
 - Enhanced error handling for missing optional services (email, payments, OAuth)
 - Created production checklist (PRODUCTION_CHECKLIST.md) confirming readiness for Railway deployment
 - Fixed username update functionality across all components (BioForm, LiveEditingDashboard, Pro Editor)
