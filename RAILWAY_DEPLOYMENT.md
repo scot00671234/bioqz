@@ -41,9 +41,9 @@ In your Railway project settings, add these environment variables:
 2. Railway will automatically build and deploy
 3. The deployment process will:
    - Install dependencies
-   - Build the application
+   - Build the client application with Vite
    - Run database migrations (create tables automatically)
-   - Start the production server
+   - Start the production server with tsx (no bundling issues)
 
 ## Step 5: Verify Deployment
 1. Check the deployment logs for successful migration

@@ -1,0 +1,224 @@
+bioqz
+
+
+production
+Architecture
+Observability
+Logs
+Settings
+
+21 days or $4.14 left
+
+
+Share
+
+
+
+
+
+
+
+
+Activity
+
+
+bioqz
+Deployments
+Variables
+Metrics
+Settings
+Unexposed service
+europe-west4-drams3a
+1 Replica
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+History
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bioqz
+/
+bea7d0d
+Jul 14, 2025, 1:33 PM
+Failed
+
+Get Help
+
+Details
+Build Logs
+Deploy Logs
+
+Filter
+Filter logs using "", (), AND, OR, -
+
+
+
+
+Load More
+
+No config path provided, using default 'drizzle.config.ts'
+
+Reading config file '/app/drizzle.config.ts'
+
+Using 'pg' driver for database querying
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[✓] Pulling schema from database...
+
+[i] No changes detected
+
+Database migrations completed successfully.
+
+Starting production server...
+
+node:internal/errors:496
+
+    ErrorCaptureStackTrace(err);
+
+    ^
+
+ 
+
+TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received undefined
+
+    at new NodeError (node:internal/errors:405:5)
+
+    at validateString (node:internal/validators:162:11)
+
+    at Object.resolve (node:path:1097:7)
+
+    at file:///app/dist/index.js:1147:17
+
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+
+    at async loadESM (node:internal/process/esm_loader:34:7)
+
+    at async handleMainPromise (node:internal/modules/run_main:106:12) {
+
+  code: 'ERR_INVALID_ARG_TYPE'
+
+}
+
+ 
+
+Node.js v18.20.5
+
+Error during startup: Error: Command failed: node dist/index.js
+
+    at checkExecSyncError (node:child_process:890:11)
+
+    at execSync (node:child_process:962:15)
+
+    at migrateAndStart (file:///app/scripts/migrate-and-start.js:23:5)
+
+    at file:///app/scripts/migrate-and-start.js:34:1
+
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+
+    at async loadESM (node:internal/process/esm_loader:34:7)
+
+    at async handleMainPromise (node:internal/modules/run_main:106:12) {
+
+  status: 1,
+
+  signal: null,
+
+  output: [ null, null, null ],
+
+  pid: 105,
+
+  stdout: null,
+
+  stderr: null
+
+}
+
+Stack trace: Error: Command failed: node dist/index.js
+
+    at checkExecSyncError (node:child_process:890:11)
+
+    at execSync (node:child_process:962:15)
+
+    at migrateAndStart (file:///app/scripts/migrate-and-start.js:23:5)
+
+    at file:///app/scripts/migrate-and-start.js:34:1
+
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+
+    at async ModuleLoader.import (node:internal/modules/esm/loader:337:24)
+
+    at async loadESM (node:internal/process/esm_loader:34:7)
+
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+
+npm warn config production Use `--omit=dev` instead.
+
+ 
+
+> rest-express@1.0.0 build
+
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+ 
+
+vite v5.4.19 building for production...
+
+transforming...
+
+Stopping Container
+
+
+bioqz | Railway
+500

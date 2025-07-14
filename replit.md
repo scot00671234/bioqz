@@ -9,8 +9,10 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 ### Railway Production Deployment Fixes (July 2025)
 - Fixed PostgreSQL table creation issues in Railway production deployment
 - Moved drizzle-kit to production dependencies for proper database migrations
-- Updated railway.toml to use migrate-and-start script for automatic table creation
-- Enhanced migrate-and-start.js script with better error handling and environment validation
+- Updated railway.toml to use production-start.js script for streamlined deployment
+- Created production-start.js script that builds client, runs migrations, and starts server with tsx
+- Resolved esbuild bundling issues by using tsx directly in production instead of bundling
+- Enhanced deployment process with better error handling and environment validation
 - Removed duplicate migration logic from server/index.ts to prevent conflicts
 - Created comprehensive Railway deployment guide (RAILWAY_DEPLOYMENT.md) with step-by-step instructions
 - Verified automatic database migration system works correctly in production environment

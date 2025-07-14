@@ -20,9 +20,10 @@ async function migrateAndStart() {
     console.log('Database migrations completed successfully.');
     
     console.log('Starting production server...');
-    execSync('node dist/index.js', { 
+    execSync('npm start', { 
       stdio: 'inherit',
-      env: { ...process.env, NODE_ENV: 'production' }
+      env: { ...process.env, NODE_ENV: 'production' },
+      cwd: process.cwd()
     });
   } catch (error) {
     console.error('Error during startup:', error);
