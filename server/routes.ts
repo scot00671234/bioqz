@@ -402,17 +402,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe health check endpoint
+  app.get('/api/stripe-status', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.json({ 
+          available: false, 
+          message: "Stripe not configured - STRIPE_SECRET_KEY missing",
+          hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+          hasPublicKey: !!process.env.VITE_STRIPE_PUBLIC_KEY
+        });
+      }
+
+      // Test Stripe connection
+      const customers = await stripe.customers.list({ limit: 1 });
+      
+      res.json({ 
+        available: true, 
+        message: "Stripe is properly configured",
+        hasSecretKey: true,
+        hasPublicKey: !!process.env.VITE_STRIPE_PUBLIC_KEY
+      });
+    } catch (error: any) {
+      console.error("Stripe connection test failed:", error);
+      res.json({ 
+        available: false, 
+        message: `Stripe connection failed: ${error.message}`,
+        hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+        hasPublicKey: !!process.env.VITE_STRIPE_PUBLIC_KEY
+      });
+    }
+  });
+
   // Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
       if (!stripe) {
-        return res.status(503).json({ message: "Payment service not available" });
+        console.error("Stripe not initialized. STRIPE_SECRET_KEY:", !!process.env.STRIPE_SECRET_KEY);
+        return res.status(503).json({ message: "Payment service not available - Stripe not configured" });
       }
       
       const userId = req.user.id;
+      console.log("Creating subscription for user:", userId);
+      
       let user = await storage.getUser(userId);
+      console.log("User found:", !!user, user?.email);
 
       if (!user) {
+        console.error("User not found in database:", userId);
         return res.status(404).json({ message: "User not found" });
       }
 
@@ -447,11 +484,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create subscription
+      // Create subscription with inline price data
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
         items: [{
-          price: process.env.STRIPE_PRICE_ID,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'bioqz Pro',
+              description: 'Unlimited links, custom themes, and analytics',
+            },
+            unit_amount: 900, // $9.00 in cents
+            recurring: {
+              interval: 'month',
+            },
+          },
         }],
         payment_behavior: 'default_incomplete',
         payment_settings: {
@@ -463,13 +510,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user with Stripe info
       await storage.updateUserStripeInfo(userId, customer.id, subscription.id);
 
+      // Safely access client secret
+      let clientSecret = null;
+      if (subscription.latest_invoice && typeof subscription.latest_invoice === 'object') {
+        const invoice = subscription.latest_invoice as any;
+        if (invoice.payment_intent && typeof invoice.payment_intent === 'object') {
+          const paymentIntent = invoice.payment_intent as any;
+          clientSecret = paymentIntent.client_secret;
+        }
+      }
+
+      if (!clientSecret) {
+        console.error('No client secret found in subscription:', JSON.stringify(subscription, null, 2));
+        return res.status(500).json({ message: 'Failed to get payment details from Stripe' });
+      }
+
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+        clientSecret: clientSecret,
       });
     } catch (error: any) {
       console.error("Error creating subscription:", error);
-      res.status(500).json({ message: "Failed to create subscription" });
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        stripeError: error.type || 'unknown'
+      });
+      res.status(500).json({ 
+        message: "Failed to create subscription",
+        error: error.message 
+      });
     }
   });
 
