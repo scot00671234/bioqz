@@ -101,6 +101,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Legacy endpoints for client compatibility
+  app.post('/api/login', (req, res, next) => {
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Login error", error: err.message });
+      }
+      if (!user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.logIn(user, (err: any) => {
+        if (err) {
+          return res.status(500).json({ message: "Login error", error: err.message });
+        }
+        res.json({ message: "Login successful", user });
+      });
+    })(req, res, next);
+  });
+
+  app.post('/api/register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      // Validate input
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      // Hash the password
+      const hashedPassword = await hashPassword(password);
+
+      // Create new user
+      const userId = randomUUID();
+      const newUser = await storage.createUser({
+        id: userId,
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        emailVerified: true
+      });
+
+      res.status(201).json({ message: "Registration successful", user: { id: newUser.id, email: newUser.email, firstName: newUser.firstName, lastName: newUser.lastName } });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  app.post('/api/logout', (req, res) => {
+    req.logout((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout error" });
+      }
+      res.json({ message: "Logout successful" });
+    });
+  });
+
   // User routes
   app.post('/api/users/username', isAuthenticated, async (req: any, res) => {
     try {
