@@ -26,6 +26,8 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - **RESOLVED: Added legacy API endpoints (/api/login, /api/register, /api/logout) for client compatibility**
 - **CONFIRMED: App successfully deploys to Railway with fully functional authentication system**
 - **VERIFIED: All authentication endpoints tested and working correctly in both development and production**
+- **RESOLVED: Fixed PostgreSQL database connection issues in Railway by switching from Neon to standard pg driver**
+- **RESOLVED: Database registration and user creation now working correctly in Railway production environment**
 
 ### Railway Production Deployment Preparation (July 2025)
 - Prepared complete Railway production deployment with automatic PostgreSQL table creation
