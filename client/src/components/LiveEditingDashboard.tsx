@@ -508,7 +508,11 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
                 <div className="text-center p-4 border-2 border-dashed border-gray-300 rounded-lg">
                   <Crown className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
                   <p className="text-sm text-gray-600 mb-2">Upgrade to Pro for unlimited links</p>
-                  <Button size="sm" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                  <Button 
+                    size="sm" 
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
+                    onClick={() => window.location.href = '/subscribe'}
+                  >
                     Upgrade Now
                   </Button>
                 </div>

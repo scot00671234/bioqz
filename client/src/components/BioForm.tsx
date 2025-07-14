@@ -360,9 +360,17 @@ export default function BioForm({ bio }: BioFormProps) {
             </div>
           </div>
           {!user?.isPaid && (
-            <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
-              ⚡ Free plan: 1 link only. <strong>Upgrade to Pro</strong> for unlimited links!
-            </p>
+            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg flex items-center justify-between">
+              <span>⚡ Free plan: 1 link only. <strong>Upgrade to Pro</strong> for unlimited links!</span>
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
+                onClick={() => window.location.href = '/subscribe'}
+              >
+                <Crown className="h-4 w-4 mr-1" />
+                Upgrade
+              </Button>
+            </div>
           )}
           {user?.isPaid && (
             <p className="text-sm text-green-600 bg-green-50 p-2 rounded-lg">

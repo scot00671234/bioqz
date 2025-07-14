@@ -229,12 +229,11 @@ export default function Dashboard() {
             {/* Upgrade Button for Free Users */}
             {!user?.isPaid && (
               <Button 
-                onClick={handleUpgrade}
+                onClick={() => navigate('/subscribe')}
                 className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
-                disabled={upgradeProMutation.isPending}
               >
                 <Crown className="h-4 w-4 mr-2" />
-                {upgradeProMutation.isPending ? "Upgrading..." : "Upgrade to Pro"}
+                Upgrade to Pro
               </Button>
             )}
           </div>
@@ -281,6 +280,61 @@ export default function Dashboard() {
                     </div>
                     <div className="text-sm text-gray-600">Weekly Growth</div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Analytics Upgrade Card for Free Users */}
+        {!user?.isPaid && (
+          <div className="mt-8">
+            <Card className="border-2 border-dashed border-yellow-300 bg-gradient-to-br from-yellow-50 to-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg text-yellow-700">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Analytics Overview
+                  <Crown className="h-5 w-5 ml-2 text-yellow-600" />
+                </CardTitle>
+                <p className="text-sm text-yellow-600">Upgrade to Pro to unlock detailed analytics</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 opacity-60">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center text-2xl font-bold text-gray-400 mb-1">
+                      <Eye className="h-5 w-5 mr-1" />
+                      ---
+                    </div>
+                    <div className="text-sm text-gray-500">Total Views</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center text-2xl font-bold text-gray-400 mb-1">
+                      <MousePointer className="h-5 w-5 mr-1" />
+                      ---
+                    </div>
+                    <div className="text-sm text-gray-500">Total Clicks</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-400 mb-1">
+                      ---%
+                    </div>
+                    <div className="text-sm text-gray-500">Click Rate</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-400 mb-1">
+                      ---%
+                    </div>
+                    <div className="text-sm text-gray-500">Weekly Growth</div>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <Button 
+                    onClick={() => navigate('/subscribe')}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Unlock Analytics - Upgrade to Pro
+                  </Button>
                 </div>
               </CardContent>
             </Card>
