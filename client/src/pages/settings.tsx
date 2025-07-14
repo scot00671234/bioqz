@@ -278,34 +278,7 @@ export default function Settings() {
 
 
 
-          {/* Bio Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Bio Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-600">
-                    {bio?.links && Array.isArray(bio.links) ? bio.links.length : 0}
-                  </div>
-                  <div className="text-sm text-gray-600">Links</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-600">
-                    {user?.isPaid ? "∞" : "5"}
-                  </div>
-                  <div className="text-sm text-gray-600">Max Links</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-600">
-                    {user?.username ? "✓" : "✗"}
-                  </div>
-                  <div className="text-sm text-gray-600">Username Set</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           <Separator />
 
