@@ -484,21 +484,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create subscription with inline price data
+      // First create a product
+      const product = await stripe.products.create({
+        name: 'bioqz Pro',
+        description: 'Unlimited links, custom themes, and analytics',
+      });
+
+      // Then create a price for that product
+      const price = await stripe.prices.create({
+        currency: 'usd',
+        unit_amount: 900, // $9.00 in cents
+        recurring: {
+          interval: 'month',
+        },
+        product: product.id,
+      });
+
+      // Create subscription using the price ID
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
         items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'bioqz Pro',
-              description: 'Unlimited links, custom themes, and analytics',
-            },
-            unit_amount: 900, // $9.00 in cents
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: price.id,
         }],
         payment_behavior: 'default_incomplete',
         payment_settings: {

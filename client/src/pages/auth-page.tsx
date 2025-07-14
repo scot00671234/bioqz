@@ -349,9 +349,9 @@ export default function AuthPage() {
             <h3 className="text-xl font-semibold mb-3">Why choose bioqz?</h3>
             <ul className="text-brand-100 space-y-2 text-left">
               <li>• Beautiful, responsive designs</li>
-              <li>• Easy drag-and-drop editor</li>
+              <li>• Easy to set up professional bio</li>
               <li>• Analytics and insights</li>
-              <li>• Custom domains available</li>
+              <li>• Custom bioqz domains available</li>
               <li>• No coding required</li>
             </ul>
           </div>
