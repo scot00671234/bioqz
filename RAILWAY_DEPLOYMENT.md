@@ -43,7 +43,7 @@ In your Railway project settings, add these environment variables:
    - Install dependencies
    - Build the client application with Vite
    - Run database migrations (create tables automatically)
-   - Start the production server with tsx (no bundling issues)
+   - Start the production server using dedicated production.ts (avoids vite config issues)
 
 ## Step 5: Verify Deployment
 1. Check the deployment logs for successful migration

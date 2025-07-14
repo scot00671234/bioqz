@@ -11,6 +11,7 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - Moved drizzle-kit to production dependencies for proper database migrations
 - Updated railway.toml to use production-start.js script for streamlined deployment
 - Created production-start.js script that builds client, runs migrations, and starts server with tsx
+- Created dedicated server/production.ts file that avoids vite config import issues in production
 - Resolved esbuild bundling issues by using tsx directly in production instead of bundling
 - Enhanced deployment process with better error handling and environment validation
 - Removed duplicate migration logic from server/index.ts to prevent conflicts

@@ -30,9 +30,9 @@ async function productionStart() {
       env: { ...process.env, NODE_ENV: 'production' }
     });
     
-    // Step 3: Start the server directly with tsx (no bundling)
+    // Step 3: Start the production server
     console.log('🌐 Starting production server...');
-    execSync('npx tsx server/index.ts', { 
+    execSync('npx tsx server/production.ts', { 
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
     });
