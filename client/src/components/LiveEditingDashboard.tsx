@@ -121,6 +121,35 @@ export default function LiveEditingDashboard({ bio, user }: LiveEditingDashboard
     },
   });
 
+  // Update form and local state when bio data changes
+  useEffect(() => {
+    if (bio) {
+      form.reset({
+        name: bio.name || user?.firstName || "",
+        description: bio.description || "",
+        username: user?.username || "",
+        avatarUrl: bio.avatarUrl || "",
+        profilePicture: bio.profilePicture || "",
+        colorScheme: bio.colorScheme || "default",
+      });
+      
+      const bioLinks = bio.links && Array.isArray(bio.links) ? bio.links : [];
+      setLinks(bioLinks);
+      setProfilePicture(bio.profilePicture || bio.avatarUrl || "");
+      
+      setLivePreview({
+        name: bio.name || user?.firstName || "",
+        description: bio.description || "",
+        username: user?.username || "",
+        avatarUrl: bio.avatarUrl || "",
+        profilePicture: bio.profilePicture || "",
+        links: bioLinks,
+        colorScheme: bio.colorScheme || "default",
+        layout: bio.layout || "default"
+      });
+    }
+  }, [bio, user, form]);
+
   // Update live preview when form values change
   const watchedValues = form.watch();
   const watchedName = watchedValues.name;

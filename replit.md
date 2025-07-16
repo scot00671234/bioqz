@@ -11,6 +11,7 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - **FIXED: Critical dashboard routing issue for Railway production** - Fixed /dashboard route being treated as username bio page instead of dashboard
 - **ENHANCED: Post-subscription redirect flow** - Users now properly redirect from payment success to dashboard for Railway production
 - **RESOLVED: Frontend routing conflicts** - Dashboard route now takes precedence over bio routes to prevent misrouting
+- **FIXED: Dashboard live preview sync issue** - Fixed bio form changes not updating in dashboard live preview after saving
 - **FIXED: Account deletion functionality** - Resolved foreign key constraint issues preventing user account deletion
 - **ENHANCED: Cascading deletion system** - Account deletion now properly removes analytics data (bio views, link clicks) before removing user
 - **IMPROVED: Error handling and logging** - Better error messages and console logging for debugging account deletion issues
