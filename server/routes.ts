@@ -408,110 +408,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create or get subscription for Pro plan
-  app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
-    try {
-      if (!stripe) {
-        return res.status(503).json({ message: "Payment service not available" });
-      }
-
-      let user = req.user;
-
-      // If user already has a subscription, return it
-      if (user.stripeSubscriptionId) {
-        try {
-          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-          const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
-          
-          res.json({
-            subscriptionId: subscription.id,
-            clientSecret: latestInvoice.payment_intent?.client_secret,
-          });
-          return;
-        } catch (stripeError) {
-          console.error("Error retrieving existing subscription:", stripeError);
-          // Continue to create a new subscription
-        }
-      }
-      
-      if (!user.email) {
-        return res.status(400).json({ message: 'No user email on file' });
-      }
-
-      // Create or get Stripe customer
-      let customer;
-      if (user.stripeCustomerId) {
-        try {
-          customer = await stripe.customers.retrieve(user.stripeCustomerId);
-        } catch {
-          customer = null;
-        }
-      }
-      
-      if (!customer) {
-        customer = await stripe.customers.create({
-          email: user.email,
-          name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email,
-        });
-        
-        // Update user with Stripe customer ID
-        await db.update(users).set({ 
-          stripeCustomerId: customer.id,
-          updatedAt: new Date()
-        }).where(eq(users.id, user.id));
-      }
-
-      // Use environment variable for price ID if available, otherwise create new product/price
-      let priceId = process.env.STRIPE_PRICE_ID;
-      
-      if (!priceId) {
-        // Fallback: create product and price dynamically
-        const product = await stripe.products.create({
-          name: 'bioqz Pro',
-          description: 'Unlimited links, custom themes, and advanced analytics',
-        });
-
-        const price = await stripe.prices.create({
-          currency: 'usd',
-          unit_amount: 900, // $9.00 in cents
-          recurring: {
-            interval: 'month',
-          },
-          product: product.id,
-        });
-        
-        priceId = price.id;
-      }
-
-      // Create subscription using the price ID
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{
-          price: priceId,
-        }],
-        payment_behavior: 'default_incomplete',
-        payment_settings: {
-          save_default_payment_method: 'on_subscription',
-        },
-        expand: ['latest_invoice.payment_intent'],
-      });
-
-      // Update user with subscription ID
-      await db.update(users).set({ 
-        stripeSubscriptionId: subscription.id,
-        stripeCustomerId: customer.id,
-        updatedAt: new Date()
-      }).where(eq(users.id, user.id));
-  
-      res.json({
-        subscriptionId: subscription.id,
-        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
-      });
-    } catch (error: any) {
-      console.error("Error creating subscription:", error);
-      res.status(500).json({ message: "Error creating subscription: " + error.message });
-    }
+  // Legacy subscription route - redirect to correct endpoint
+  app.post("/api/bios/subscribe", (req, res) => {
+    console.log("Legacy /api/bios/subscribe called, redirecting to /api/get-or-create-subscription");
+    res.status(404).json({ 
+      message: "Endpoint moved", 
+      newEndpoint: "/api/get-or-create-subscription",
+      redirectUrl: "/subscribe"
+    });
   });
+
+
 
 
 
@@ -597,7 +504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe subscription route
+  // Main Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
       if (!stripe) {
