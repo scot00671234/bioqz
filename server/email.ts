@@ -62,7 +62,9 @@ export async function sendVerificationEmail(
   }
 
   const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const verificationUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/api/verify-email?token=${verificationToken}`;
+  // Always use bioqz.com for email verification links in production
+  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://bioqz.com' : (process.env.BASE_URL || 'http://localhost:5000');
+  const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
 
   const mailOptions = {
     from: `"bioqz" <${emailUser}>`,
@@ -200,7 +202,7 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
             </ul>
             
             <div style="text-align: center;">
-              <a href="${process.env.BASE_URL || 'http://localhost:5000'}" class="button">Start Building Your Bio</a>
+              <a href="${process.env.NODE_ENV === 'production' ? 'https://bioqz.com' : (process.env.BASE_URL || 'http://localhost:5000')}" class="button">Start Building Your Bio</a>
             </div>
           </div>
           
@@ -242,7 +244,9 @@ export async function sendPasswordResetEmail(
   }
 
   const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
-  const resetUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+  // Always use bioqz.com for password reset links in production
+  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://bioqz.com' : (process.env.BASE_URL || 'http://localhost:5000');
+  const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
   const mailOptions = {
     from: `"bioqz" <${emailUser}>`,

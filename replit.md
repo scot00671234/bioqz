@@ -6,6 +6,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
+### Replit Agent to Standard Environment Migration & Email Configuration (July 2025)
+- **COMPLETED: Migration from Replit Agent to standard Replit environment** - Successfully migrated with PostgreSQL database setup
+- **FIXED: Email verification URLs for bioqz.com production** - All verification emails now use bioqz.com URLs instead of Railway production URLs
+- **ENHANCED: Email service configuration** - Updated sendVerificationEmail, sendWelcomeEmail, and sendPasswordResetEmail to use bioqz.com in production
+- **APPLIED: Database migrations** - All tables (users, bios, sessions, analytics) successfully created with proper relationships
+- **VERIFIED: Application running on Replit** - Server running on port 5000 with client/server separation and security practices
+- **CONFIGURED: Railway production compatibility** - Email links redirect to bioqz.com for customer verification flow
+
 ### Stripe Subscription Payment Fixes & Production Configuration (July 2025)
 - **FIXED: Stripe API subscription creation error** - Resolved "Received unknown parameter: items[0][price_data][product_data]" by using proper product/price creation flow
 - **REMOVED: Subscription bypass endpoint** - Eliminated /api/upgrade-to-pro endpoint that was bypassing Stripe payment
