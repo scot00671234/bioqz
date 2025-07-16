@@ -27,6 +27,11 @@ function Router() {
       {/* Payment success page should be accessible regardless of auth status */}
       <Route path="/payment-success" component={PaymentSuccess} />
       
+      {/* Dashboard route should always be accessible for authenticated users */}
+      <Route path="/dashboard">
+        {isAuthenticated ? <Dashboard /> : <Landing />}
+      </Route>
+      
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
