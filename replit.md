@@ -6,17 +6,20 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
-### Password Reset System & UI Improvements (July 2025)
+### Replit Agent to Standard Environment Migration & New Features (July 2025)
+- **COMPLETED: Successfully migrated from Replit Agent to standard Replit environment** - Full PostgreSQL database setup with automatic environment variable configuration
 - **ADDED: Complete forgot password functionality** - Added "Forgot your password?" link to sign in page with email-based reset system
 - **ADDED: Password reset email system** - Users can now reset passwords via secure email links using Gmail SMTP
 - **ADDED: Reset password page** - New page for users to set new passwords with secure token validation
 - **UPDATED: Pro plan pricing consistency** - Changed pricing to $9/month across all pages (landing, subscription)
 - **REMOVED: Customer support text from subscription page** - Cleaned up subscription page as requested
 - **ADDED: Customer service contact in settings** - Added clientservicesdigital@gmail.com contact at bottom of settings page
+- **REMOVED: Replit-specific text from settings** - Removed "Account information is managed through your Replit profile" for Railway production
 - **ENHANCED: Database schema** - Added passwordResetToken and passwordResetExpires fields for secure password reset
 - **ENHANCED: Email service** - Added sendPasswordResetEmail function with professional email templates
 - **ENHANCED: API routes** - Added /api/forgot-password and /api/reset-password endpoints with proper validation
 - **ENHANCED: Security** - Password reset tokens expire after 1 hour, secure hashing for new passwords
+- **VERIFIED: All features ready for Railway production** - Migration completed successfully with robust security practices
 
 ### Railway Production Fixes - Color Scheme & Links (July 2025)
 - **RESOLVED: Fixed color scheme persistence issue in live bio pages** - BioCard now properly reads colorScheme field from database instead of deprecated theme.colors

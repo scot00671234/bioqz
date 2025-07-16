@@ -224,9 +224,7 @@ export default function Settings() {
                   className="bg-gray-50"
                 />
               </div>
-              <p className="text-sm text-gray-500">
-                Account information is managed through your Replit profile and cannot be changed here.
-              </p>
+
             </CardContent>
           </Card>
 
