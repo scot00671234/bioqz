@@ -458,22 +458,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }).where(eq(users.id, user.id));
       }
 
-      // Create subscription - using a hardcoded price for now
-      // In production, this would be an environment variable
+      // Use environment variable for price ID if available, otherwise create new product/price
+      let priceId = process.env.STRIPE_PRICE_ID;
+      
+      if (!priceId) {
+        // Fallback: create product and price dynamically
+        const product = await stripe.products.create({
+          name: 'bioqz Pro',
+          description: 'Unlimited links, custom themes, and advanced analytics',
+        });
+
+        const price = await stripe.prices.create({
+          currency: 'usd',
+          unit_amount: 900, // $9.00 in cents
+          recurring: {
+            interval: 'month',
+          },
+          product: product.id,
+        });
+        
+        priceId = price.id;
+      }
+
+      // Create subscription using the price ID
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
         items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'bioqz Pro',
-              description: 'Unlimited links, custom themes, and advanced analytics',
-            },
-            unit_amount: 900, // $9.00 in cents
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: priceId,
         }],
         payment_behavior: 'default_incomplete',
         payment_settings: {
@@ -501,23 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Instant Pro upgrade route
-  app.post('/api/upgrade-to-pro', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      
-      // Use SQL to directly update the user's paid status
-      await db.update(users).set({ isPaid: true }).where(eq(users.id, userId));
-      
-      // Get the updated user
-      const [user] = await db.select().from(users).where(eq(users.id, userId));
 
-      res.json({ message: "Pro features activated", user });
-    } catch (error: any) {
-      console.error("Error upgrading to Pro:", error);
-      res.status(500).json({ message: "Failed to upgrade to Pro" });
-    }
-  });
 
   // Cancel subscription route
   app.post('/api/cancel-subscription', isAuthenticated, async (req: any, res) => {

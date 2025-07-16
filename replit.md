@@ -6,6 +6,14 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
+### Stripe Subscription Payment Fixes & Production Configuration (July 2025)
+- **FIXED: Stripe API subscription creation error** - Resolved "Received unknown parameter: items[0][price_data][product_data]" by using proper product/price creation flow
+- **REMOVED: Subscription bypass endpoint** - Eliminated /api/upgrade-to-pro endpoint that was bypassing Stripe payment
+- **ENHANCED: Production-ready Stripe integration** - Added STRIPE_PRICE_ID environment variable support for production deployments
+- **FIXED: Settings and Dashboard upgrade flow** - Both now properly redirect to /subscribe page instead of bypassing payment
+- **ADDED: Dynamic product/price creation fallback** - System creates Stripe products/prices dynamically when STRIPE_PRICE_ID not provided
+- **VERIFIED: Complete subscription payment flow** - Users now properly directed through Stripe payment for Pro subscriptions
+
 ### Stripe Subscription Integration & Navigation Enhancement (July 2025)
 - **COMPLETED: bioqz logo navigation functionality** - Logo now clickable across all pages with appropriate navigation behavior
 - **LANDING PAGE: bioqz logo scrolls to top** - When not logged in, clicking logo smoothly scrolls to top of landing page

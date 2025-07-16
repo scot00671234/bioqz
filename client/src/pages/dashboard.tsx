@@ -64,34 +64,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpgrade = async () => {
-    try {
-      const response = await fetch("/api/upgrade-to-pro", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (response.ok) {
-        toast({
-          title: "Welcome to Pro!",
-          description: "You now have access to unlimited links and Pro features.",
-        });
-        // Refresh user data
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        // Navigate to pro editor
-        navigate("/pro-editor");
-      } else {
-        throw new Error("Failed to upgrade");
-      }
-    } catch (error) {
-      toast({
-        title: "Upgrade Failed",
-        description: "There was an error upgrading your account. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleUpgrade = () => {
+    navigate("/subscribe");
   };
 
   const upgradeProMutation = useMutation({
