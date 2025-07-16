@@ -33,6 +33,25 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  // Handle payment success redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      toast({
+        title: "Payment Successful!",
+        description: "Welcome to bioqz Pro! Your account has been upgraded.",
+      });
+      
+      // Refresh user data to get updated Pro status
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, "/dashboard");
+    }
+  }, [toast, queryClient]);
+
   const { data: bio } = useQuery<Bio | null>({
     queryKey: ["/api/bios/me"],
     enabled: isAuthenticated,

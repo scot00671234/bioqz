@@ -10,12 +10,18 @@ interface BioCardProps {
 
 export default function BioCard({ bio, username }: BioCardProps) {
   const handleLinkClick = async (url: string, title: string) => {
+    // Ensure URL has protocol for external links
+    let formattedUrl = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+      formattedUrl = `https://${url}`;
+    }
+
     // Track the click
     try {
       await apiRequest("/api/track-click", "POST", {
         userId: bio.userId,
         bioId: bio.id,
-        linkUrl: url,
+        linkUrl: formattedUrl,
         linkTitle: title
       });
     } catch (error) {
@@ -23,7 +29,7 @@ export default function BioCard({ bio, username }: BioCardProps) {
       // Don't prevent the link from opening if tracking fails
     }
     
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(formattedUrl, "_blank", "noopener,noreferrer");
   };
 
   // Color schemes - matching LiveBioPreview

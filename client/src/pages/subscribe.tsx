@@ -37,7 +37,7 @@ const SubscribeForm = () => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/dashboard?upgraded=true`,
+        return_url: `${window.location.origin}/dashboard?payment=success`,
       },
     });
 
