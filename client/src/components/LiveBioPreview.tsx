@@ -91,7 +91,7 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
 
   return (
     <Card 
-      className="w-full max-w-md mx-auto shadow-lg overflow-hidden"
+      className="w-full max-w-md mx-auto shadow-2xl overflow-hidden border-0 backdrop-blur-sm"
       style={{
         backgroundColor: colors.background,
         color: colors.text,
@@ -99,30 +99,41 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
         fontSize: size.size
       }}
     >
-      <CardContent className="p-8">
-        {/* Profile Section */}
-        <div className="text-center mb-8">
+      <CardContent className="p-0">
+        {/* Header Section with Glassmorphism Effect */}
+        <div className="relative p-8 text-center" style={{ 
+          background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}10)`
+        }}>
+          {/* Floating background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20" style={{ background: `radial-gradient(circle, ${colors.primary}30, transparent)` }}></div>
+            <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full opacity-15" style={{ background: `radial-gradient(circle, ${colors.secondary}30, transparent)` }}></div>
+          </div>
+          
           {/* Profile Picture */}
-          <div 
-            className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-white font-bold text-2xl"
-            style={{ backgroundColor: colors.primary }}
-          >
-            {bio?.profilePicture ? (
-              <img 
-                src={bio.profilePicture} 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <User className="h-12 w-12" />
-            )}
+          <div className="relative mb-6 group">
+            <div 
+              className="w-28 h-28 rounded-full mx-auto mb-4 flex items-center justify-center text-white font-bold text-3xl ring-4 ring-white/50 shadow-2xl group-hover:scale-105 transition-all duration-300"
+              style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})` }}
+            >
+              {bio?.profilePicture ? (
+                <img 
+                  src={bio.profilePicture} 
+                  alt="Profile" 
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <User className="h-12 w-12" />
+              )}
+            </div>
+            <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-gradient-to-tr from-transparent via-white/10 to-white/30 group-hover:opacity-0 transition-opacity duration-300"></div>
           </div>
           
           {/* Name */}
           <h1 
-            className="text-2xl font-bold mb-2"
+            className="text-3xl font-bold mb-3 tracking-tight"
             style={{ 
-              fontSize: `calc(${size.size} * 1.5)`,
+              fontSize: `calc(${size.size} * 1.75)`,
               fontFamily: font.family
             }}
           >
@@ -131,9 +142,9 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
           
           {/* Bio Description */}
           <p 
-            className="opacity-80 mb-6 leading-relaxed"
+            className="opacity-80 mb-6 leading-relaxed text-lg max-w-xs mx-auto"
             style={{ 
-              fontSize: size.size,
+              fontSize: `calc(${size.size} * 1.1)`,
               fontFamily: font.family
             }}
           >
@@ -142,108 +153,123 @@ export default function LiveBioPreview({ bio, user, previewState }: LiveBioPrevi
         </div>
 
         {/* Links Section */}
-        <div className="space-y-4">
-          {sampleLinks.slice(0, user?.isPaid ? sampleLinks.length : 1).map((link: any, index: number) => {
-            if (layout === 'cards') {
+        <div className="px-8 pb-8">
+          <div className="space-y-3">
+            {sampleLinks.slice(0, user?.isPaid ? sampleLinks.length : 1).map((link: any, index: number) => {
+              if (layout === 'cards') {
+                return (
+                  <div
+                    key={index}
+                    className="p-4 rounded-xl shadow-lg text-center border cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 group overflow-hidden relative"
+                    style={{ 
+                      backgroundColor: index % 2 === 0 ? colors.primary : colors.secondary,
+                      color: 'white'
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="relative z-10 font-medium">{link.title}</div>
+                    {link.description && (
+                      <div className="text-sm opacity-90 mt-1 relative z-10">{link.description}</div>
+                    )}
+                  </div>
+                );
+              }
+              
+              if (layout === 'minimal') {
+                return (
+                  <div
+                    key={index}
+                    className="py-4 px-4 text-center border-b-2 cursor-pointer hover:opacity-80 transition-all duration-300 hover:bg-opacity-5"
+                    style={{ 
+                      borderColor: index % 2 === 0 ? colors.primary : colors.secondary,
+                      color: index % 2 === 0 ? colors.primary : colors.secondary
+                    }}
+                  >
+                    <div className="font-medium">{link.title}</div>
+                    {link.description && (
+                      <div className="text-sm opacity-70 mt-1">{link.description}</div>
+                    )}
+                  </div>
+                );
+              }
+              
+              if (layout === 'gradient') {
+                return (
+                  <div
+                    key={index}
+                    className="p-4 rounded-xl text-center text-white font-medium bg-gradient-to-r shadow-xl cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 group overflow-hidden relative"
+                    style={{ 
+                      background: index % 2 === 0 
+                        ? `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`
+                        : `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <div className="relative z-10">{link.title}</div>
+                    {link.description && (
+                      <div className="text-sm opacity-90 mt-1 relative z-10">{link.description}</div>
+                    )}
+                  </div>
+                );
+              }
+              
+              // Default layout
               return (
-                <div
+                <Button
                   key={index}
-                  className="p-4 rounded-lg shadow-sm text-center border cursor-pointer hover:shadow-md transition-shadow"
+                  className="w-full h-auto p-4 text-white font-medium cursor-pointer hover:opacity-90 transition-all duration-300 group overflow-hidden relative backdrop-blur-sm"
                   style={{ 
                     backgroundColor: index % 2 === 0 ? colors.primary : colors.secondary,
-                    color: 'white'
+                    fontSize: size.size,
+                    fontFamily: font.family,
+                    boxShadow: `0 4px 12px ${colors.primary}20`
                   }}
                 >
-                  <div className="font-medium">{link.title}</div>
-                  {link.description && (
-                    <div className="text-sm opacity-90 mt-1">{link.description}</div>
-                  )}
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  <div className="flex items-center justify-center w-full relative z-10">
+                    <ExternalLink className="h-4 w-4 mr-3 group-hover:rotate-12 transition-transform duration-300" />
+                    <div>{link.title}</div>
+                    {link.description && (
+                      <div className="text-sm opacity-90 mt-1">{link.description}</div>
+                    )}
+                  </div>
+                </Button>
               );
-            }
+            })}
             
-            if (layout === 'minimal') {
-              return (
-                <div
-                  key={index}
-                  className="py-3 px-4 text-center border-b-2 cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ 
-                    borderColor: index % 2 === 0 ? colors.primary : colors.secondary,
-                    color: index % 2 === 0 ? colors.primary : colors.secondary
-                  }}
-                >
-                  <div className="font-medium">{link.title}</div>
-                  {link.description && (
-                    <div className="text-sm opacity-70 mt-1">{link.description}</div>
-                  )}
+            {/* Pro upgrade message for free users */}
+            {!user?.isPaid && sampleLinks.length > 1 && (
+              <div className="text-center py-6 px-4 rounded-xl" style={{ 
+                background: `linear-gradient(135deg, ${colors.primary}10, ${colors.secondary}05)`,
+                border: `1px dashed ${colors.primary}30`
+              }}>
+                <p className="text-sm font-medium mb-2" style={{ color: colors.text, opacity: 0.7 }}>Upgrade to Pro for unlimited links</p>
+                <div className="text-xs" style={{ color: colors.text, opacity: 0.5 }}>
+                  {sampleLinks.length - 1} more links available with Pro
                 </div>
-              );
-            }
-            
-            if (layout === 'gradient') {
-              return (
-                <div
-                  key={index}
-                  className="p-4 rounded-lg text-center text-white font-medium bg-gradient-to-r shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                  style={{ 
-                    background: index % 2 === 0 
-                      ? `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`
-                      : `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`
-                  }}
-                >
-                  <div>{link.title}</div>
-                  {link.description && (
-                    <div className="text-sm opacity-90 mt-1">{link.description}</div>
-                  )}
-                </div>
-              );
-            }
-            
-            // Default layout
-            return (
-              <Button
-                key={index}
-                className="w-full h-auto p-4 text-white font-medium cursor-pointer hover:opacity-90 transition-opacity"
-                style={{ 
-                  backgroundColor: index % 2 === 0 ? colors.primary : colors.secondary,
-                  fontSize: size.size,
-                  fontFamily: font.family
-                }}
-              >
-                <div className="flex flex-col items-center">
-                  <div>{link.title}</div>
-                  {link.description && (
-                    <div className="text-sm opacity-90 mt-1">{link.description}</div>
-                  )}
-                </div>
-              </Button>
-            );
-          })}
-          
-          {/* Pro upgrade message for free users */}
-          {!user?.isPaid && sampleLinks.length > 1 && (
-            <div className="text-center py-4 px-3 border-2 border-dashed border-gray-300 rounded-lg">
-              <p className="text-sm text-gray-500 mb-2">Upgrade to Pro for unlimited links</p>
-              <div className="text-xs text-gray-400">
-                {sampleLinks.length - 1} more links available with Pro
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 pt-6 border-t border-gray-200">
-          <div className="text-xs opacity-60">
-            Powered by{" "}
-            <a 
-              href="https://bioqz.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: colors.primary }} 
-              className="hover:underline cursor-pointer"
-            >
-              bioqz
-            </a>
+        <div className="text-center px-8 pb-6" style={{ 
+          background: `linear-gradient(135deg, ${colors.primary}08, ${colors.secondary}05)`,
+          borderTop: `1px solid ${colors.primary}15`
+        }}>
+          <div className="pt-6">
+            <div className="text-sm font-medium" style={{ color: colors.text, opacity: 0.6 }}>
+              Powered by{" "}
+              <a 
+                href="https://bioqz.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: colors.primary }} 
+                className="hover:underline cursor-pointer transition-all duration-200 hover:opacity-80"
+              >
+                bioqz
+              </a>
+            </div>
           </div>
         </div>
       </CardContent>

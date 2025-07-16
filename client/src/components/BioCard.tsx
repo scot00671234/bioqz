@@ -128,78 +128,114 @@ export default function BioCard({ bio, username }: BioCardProps) {
   };
 
   return (
-    <Card className={layoutClasses[layout as keyof typeof layoutClasses]} style={{...cardStyle, ...typographyStyle}}>
-      <CardContent className="p-8 text-center">
-        {/* Custom CSS */}
-        {bio.customCss && (
-          <style dangerouslySetInnerHTML={{ __html: bio.customCss }} />
-        )}
-        {/* Profile Image */}
-        <div className="mb-6 animate-fade-in">
-          {(bio.profilePicture || bio.avatarUrl) ? (
-            <img
-              src={bio.profilePicture || bio.avatarUrl}
-              alt={`${bio.name} profile`}
-              className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg warm-shadow"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center border-4 border-white shadow-lg warm-shadow">
-              <span className="text-white text-2xl font-bold">
-                {bio.name?.charAt(0).toUpperCase() || "U"}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Name and Bio */}
-        <h1 className="text-2xl font-bold mb-2 animate-slide-up" style={{ color: themeColors.text }}>{bio.name}</h1>
-        {bio.description && (
-          <p className="mb-8 animate-slide-up" style={{ color: themeColors.text, opacity: 0.8 }}>{bio.description}</p>
-        )}
-
-        {/* Links */}
-        <div className="space-y-4">
-          {bio.links && Array.isArray(bio.links) && bio.links.map((link: any, index: number) => (
-            <Button
-              key={index}
-              onClick={() => handleLinkClick(link.url, link.title)}
-              className={buttonLayoutClasses[layout as keyof typeof buttonLayoutClasses]}
-              style={layout === 'gradient' ? {
-                background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})`,
-                border: 'none'
-              } : buttonStyle}
-              variant="default"
-            >
-              <div className="flex items-center justify-center w-full">
-                <ExternalLink className="h-4 w-4 mr-3" />
-                <span>{link.title}</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 px-4">
+      <div className="max-w-md mx-auto">
+        <Card className={`${layoutClasses[layout as keyof typeof layoutClasses]} backdrop-blur-sm border-0 overflow-hidden`} style={{...cardStyle, ...typographyStyle}}>
+          <CardContent className="p-0">
+            {/* Custom CSS */}
+            {bio.customCss && (
+              <style dangerouslySetInnerHTML={{ __html: bio.customCss }} />
+            )}
+            
+            {/* Header Section with Glassmorphism Effect */}
+            <div className="relative p-8 text-center" style={{ 
+              background: `linear-gradient(135deg, ${themeColors.primary}15, ${themeColors.secondary}10)`
+            }}>
+              {/* Floating background elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20" style={{ background: `radial-gradient(circle, ${themeColors.primary}30, transparent)` }}></div>
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 rounded-full opacity-15" style={{ background: `radial-gradient(circle, ${themeColors.secondary}30, transparent)` }}></div>
               </div>
-            </Button>
-          ))}
-          {(!bio.links || !Array.isArray(bio.links) || bio.links.length === 0) && (
-            <div className="text-center py-8" style={{ color: themeColors.text, opacity: 0.6 }}>
-              <ExternalLink className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No links added yet.</p>
-            </div>
-          )}
-        </div>
+              
+              {/* Profile Image */}
+              <div className="relative mb-6 animate-fade-in">
+                {(bio.profilePicture || bio.avatarUrl) ? (
+                  <div className="relative group">
+                    <img
+                      src={bio.profilePicture || bio.avatarUrl}
+                      alt={`${bio.name} profile`}
+                      className="w-28 h-28 rounded-full mx-auto object-cover ring-4 ring-white/50 shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-gradient-to-tr from-transparent via-white/10 to-white/30 group-hover:opacity-0 transition-opacity duration-300"></div>
+                  </div>
+                ) : (
+                  <div className="w-28 h-28 rounded-full mx-auto bg-gradient-to-br flex items-center justify-center ring-4 ring-white/50 shadow-2xl hover:scale-105 transition-transform duration-300" style={{ background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})` }}>
+                    <span className="text-white text-3xl font-bold">
+                      {bio.name?.charAt(0).toUpperCase() || "U"}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-        {/* Powered by */}
-        <div className="mt-8 pt-6 border-t" style={{ borderColor: themeColors.text, opacity: 0.2 }}>
-          <p className="text-sm" style={{ color: themeColors.text, opacity: 0.6 }}>
-            Powered by{" "}
-            <a 
-              href="https://bioqz.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: themeColors.primary }} 
-              className="font-semibold hover:underline cursor-pointer"
-            >
-              bioqz
-            </a>
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+              {/* Name and Bio */}
+              <h1 className="text-3xl font-bold mb-3 animate-slide-up tracking-tight" style={{ color: themeColors.text }}>{bio.name}</h1>
+              {bio.description && (
+                <p className="mb-6 animate-slide-up leading-relaxed text-lg max-w-xs mx-auto" style={{ color: themeColors.text, opacity: 0.8 }}>{bio.description}</p>
+              )}
+            </div>
+
+            {/* Links Section */}
+            <div className="px-8 pb-8">
+              <div className="space-y-3">
+                {bio.links && Array.isArray(bio.links) && bio.links.map((link: any, index: number) => (
+                  <Button
+                    key={index}
+                    onClick={() => handleLinkClick(link.url, link.title)}
+                    className={`${buttonLayoutClasses[layout as keyof typeof buttonLayoutClasses]} group relative overflow-hidden backdrop-blur-sm`}
+                    style={layout === 'gradient' ? {
+                      background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})`,
+                      border: 'none'
+                    } : {
+                      ...buttonStyle,
+                      boxShadow: `0 4px 12px ${themeColors.primary}20`
+                    }}
+                    variant="default"
+                  >
+                    {/* Animated background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    
+                    <div className="flex items-center justify-center w-full relative z-10">
+                      <ExternalLink className="h-4 w-4 mr-3 group-hover:rotate-12 transition-transform duration-300" />
+                      <span className="font-medium">{link.title}</span>
+                    </div>
+                  </Button>
+                ))}
+                {(!bio.links || !Array.isArray(bio.links) || bio.links.length === 0) && (
+                  <div className="text-center py-12 px-4 rounded-xl" style={{ 
+                    background: `linear-gradient(135deg, ${themeColors.primary}05, ${themeColors.secondary}05)`,
+                    border: `1px dashed ${themeColors.primary}30`
+                  }}>
+                    <ExternalLink className="h-12 w-12 mx-auto mb-3 opacity-40" style={{ color: themeColors.primary }} />
+                    <p className="text-lg font-medium" style={{ color: themeColors.text, opacity: 0.6 }}>No links added yet</p>
+                    <p className="text-sm mt-1" style={{ color: themeColors.text, opacity: 0.4 }}>Links will appear here once added</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Powered by */}
+            <div className="px-8 pb-6 text-center" style={{ 
+              background: `linear-gradient(135deg, ${themeColors.primary}08, ${themeColors.secondary}05)`,
+              borderTop: `1px solid ${themeColors.primary}15`
+            }}>
+              <div className="pt-6">
+                <p className="text-sm font-medium" style={{ color: themeColors.text, opacity: 0.6 }}>
+                  Powered by{" "}
+                  <a 
+                    href="https://bioqz.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ color: themeColors.primary }} 
+                    className="font-semibold hover:underline cursor-pointer transition-all duration-200 hover:opacity-80"
+                  >
+                    bioqz
+                  </a>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
