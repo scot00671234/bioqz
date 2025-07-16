@@ -12,6 +12,8 @@ import Subscribe from "@/pages/subscribe";
 import Demo from "@/pages/demo";
 import Settings from "@/pages/settings";
 import Analytics from "@/pages/analytics";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 
 import ProEditor from "@/pages/pro-editor";
 import NotFound from "@/pages/not-found";
@@ -25,6 +27,8 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/reset-password" component={ResetPassword} />
           <Route path="/demo" component={Demo} />
           <Route path="/:username" component={BioPreview} />
         </>

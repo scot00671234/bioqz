@@ -175,13 +175,7 @@ export default function Subscribe() {
                 </div>
               </div>
               
-              <div className="flex items-start">
-                <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-gray-900">Priority Support</h3>
-                  <p className="text-gray-600">Get help when you need it with priority customer support</p>
-                </div>
-              </div>
+
               
               <div className="flex items-start">
                 <Check className="h-5 w-5 text-green-600 mt-1 mr-3 flex-shrink-0" />

@@ -310,6 +310,24 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Customer Service */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Service</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-2">
+                Need help? Contact our customer service team:
+              </p>
+              <a 
+                href="mailto:clientservicesdigital@gmail.com" 
+                className="text-brand-600 hover:text-brand-700 font-medium"
+              >
+                clientservicesdigital@gmail.com
+              </a>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

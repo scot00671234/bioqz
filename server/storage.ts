@@ -25,6 +25,8 @@ export interface IStorage {
   linkGoogleAccount(userId: string, googleId: string): Promise<void>;
   verifyEmail(token: string): Promise<User | null>;
   updateEmailVerificationToken(userId: string, token: string, expires: Date): Promise<void>;
+  updatePasswordResetToken(userId: string, token: string, expires: Date): Promise<void>;
+  resetPassword(token: string, newPassword: string): Promise<User | null>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
   cancelUserSubscription(userId: string): Promise<User>;
   deleteUser(userId: string): Promise<void>;
@@ -141,6 +143,47 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId));
+  }
+
+  async updatePasswordResetToken(userId: string, token: string, expires: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        passwordResetToken: token,
+        passwordResetExpires: expires,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.passwordResetToken, token));
+
+    if (!user || !user.passwordResetExpires) {
+      return null;
+    }
+
+    // Check if token is expired
+    if (new Date() > user.passwordResetExpires) {
+      return null;
+    }
+
+    // Update the password and clear reset token
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        password: newPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id))
+      .returning();
+
+    return updatedUser;
   }
 
   async updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User> {

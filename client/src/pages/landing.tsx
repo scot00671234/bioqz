@@ -252,7 +252,7 @@ export default function Landing() {
               </div>
               <CardContent className="p-0">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-6">$8<span className="text-lg font-normal text-gray-600">/month</span></div>
+                <div className="text-4xl font-bold text-gray-900 mb-6">$9<span className="text-lg font-normal text-gray-600">/month</span></div>
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-center">
                     <Check className="h-5 w-5 text-emerald-500 mr-3" />

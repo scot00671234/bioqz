@@ -40,6 +40,8 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: varchar("email_verification_token"),
   emailVerificationExpires: timestamp("email_verification_expires"),
+  passwordResetToken: varchar("password_reset_token"),
+  passwordResetExpires: timestamp("password_reset_expires"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -121,7 +123,18 @@ export const registerSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email format"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type AuthUser = z.infer<typeof authUserSchema>;
+export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
 export type RegisterData = z.infer<typeof registerSchema>;

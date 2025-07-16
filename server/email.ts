@@ -228,3 +228,98 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
     return false;
   }
 }
+
+export async function sendPasswordResetEmail(
+  email: string, 
+  firstName: string, 
+  resetToken: string
+): Promise<boolean> {
+  const transporter = await createTransporter();
+  
+  if (!transporter) {
+    console.log('Email not configured, skipping password reset email');
+    return false;
+  }
+
+  const emailUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const resetUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+
+  const mailOptions = {
+    from: `"bioqz" <${emailUser}>`,
+    to: email,
+    subject: 'Reset your bioqz password',
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset your bioqz password</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { text-align: center; padding: 20px 0; border-bottom: 1px solid #eee; }
+          .logo { font-size: 32px; font-weight: bold; color: #ea580c; }
+          .content { padding: 30px 0; }
+          .button { 
+            display: inline-block; 
+            background-color: #ea580c; 
+            color: white; 
+            padding: 12px 30px; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-weight: bold;
+            margin: 20px 0;
+          }
+          .footer { text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">bioqz</div>
+          </div>
+          
+          <div class="content">
+            <h2>Reset your password, ${firstName}</h2>
+            
+            <p>We received a request to reset your password for your bioqz account. If you didn't make this request, you can safely ignore this email.</p>
+            
+            <p>To reset your password, click the button below:</p>
+            
+            <div style="text-align: center;">
+              <a href="${resetUrl}" class="button">Reset Password</a>
+            </div>
+            
+            <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+            
+            <p>This password reset link will expire in 1 hour for security reasons.</p>
+            
+            <p>If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
+          </div>
+          
+          <div class="footer">
+            <p>© 2025 bioqz. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to ${email}`);
+    
+    // If using Ethereal Email (test mode), log the preview URL
+    if (nodemailer.getTestMessageUrl(info)) {
+      console.log('📧 Preview email: ' + nodemailer.getTestMessageUrl(info));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return false;
+  }
+}

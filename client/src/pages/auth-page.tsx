@@ -219,6 +219,16 @@ export default function AuthPage() {
                     )}
                   </div>
 
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      className="text-sm text-brand-600 hover:text-brand-700"
+                      onClick={() => navigate("/forgot-password")}
+                    >
+                      Forgot your password?
+                    </button>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full bg-brand-600 hover:bg-brand-700" 

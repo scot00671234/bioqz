@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertBioSchema, insertUserSchema, users } from "@shared/schema";
+import { insertBioSchema, insertUserSchema, users, forgotPasswordSchema, resetPasswordSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -11,6 +11,7 @@ import express from "express";
 import passport from "passport";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./auth";
+import { sendPasswordResetEmail } from "./email";
 
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
@@ -162,6 +163,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logout successful" });
     });
+  });
+
+  // Password reset routes
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      const { email } = forgotPasswordSchema.parse(req.body);
+      
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if user exists for security
+        return res.json({ message: "If the email exists, you will receive a reset link" });
+      }
+
+      // Generate reset token
+      const resetToken = randomUUID();
+      const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+      // Store reset token
+      await storage.updatePasswordResetToken(user.id, resetToken, resetExpires);
+
+      // Send reset email
+      const emailSent = await sendPasswordResetEmail(email, user.firstName || 'User', resetToken);
+      
+      if (emailSent) {
+        res.json({ message: "If the email exists, you will receive a reset link" });
+      } else {
+        res.json({ message: "If the email exists, you will receive a reset link" });
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  });
+
+  app.post('/api/reset-password', async (req, res) => {
+    try {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      
+      // Hash the new password
+      const hashedPassword = await hashPassword(password);
+      
+      // Reset the password
+      const user = await storage.resetPassword(token, hashedPassword);
+      
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      res.json({ message: "Password reset successful" });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Something went wrong" });
+    }
   });
 
   // User routes
