@@ -46,6 +46,10 @@ export default function Settings() {
   const deleteAccountMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("/api/users/account", "DELETE");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete account");
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -53,9 +57,13 @@ export default function Settings() {
         title: "Account Deleted",
         description: "Your account has been permanently deleted.",
       });
-      window.location.href = "/api/logout";
+      // Give a small delay before redirecting to ensure the toast is shown
+      setTimeout(() => {
+        window.location.href = "/api/logout";
+      }, 1000);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Delete account error:", error);
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -69,7 +77,7 @@ export default function Settings() {
       }
       toast({
         title: "Error",
-        description: "Failed to delete account. Please try again.",
+        description: error.message || "Failed to delete account. Please try again.",
         variant: "destructive",
       });
     },

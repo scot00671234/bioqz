@@ -260,10 +260,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUser(userId: string): Promise<void> {
+    // Delete analytics data first to avoid foreign key constraints
+    await db.delete(linkClicks).where(eq(linkClicks.userId, userId));
+    await db.delete(bioViews).where(eq(bioViews.userId, userId));
+    
+    // Delete bio
+    await db.delete(bios).where(eq(bios.userId, userId));
+    
+    // Finally delete user
     await db.delete(users).where(eq(users.id, userId));
   }
 
   async deleteBio(userId: string): Promise<void> {
+    // First get the bio to get the bioId for analytics cleanup
+    const bio = await this.getBioByUserId(userId);
+    
+    if (bio) {
+      // Delete analytics data related to this bio
+      await db.delete(linkClicks).where(eq(linkClicks.bioId, bio.id));
+      await db.delete(bioViews).where(eq(bioViews.bioId, bio.id));
+    }
+    
+    // Delete the bio
     await db.delete(bios).where(eq(bios.userId, userId));
   }
 

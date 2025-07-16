@@ -6,8 +6,11 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
-### Replit Agent to Standard Environment Migration & Email Configuration (July 2025)
+### Replit Agent to Standard Environment Migration & Production Fixes (July 2025)
 - **COMPLETED: Migration from Replit Agent to standard Replit environment** - Successfully migrated with PostgreSQL database setup
+- **FIXED: Account deletion functionality** - Resolved foreign key constraint issues preventing user account deletion
+- **ENHANCED: Cascading deletion system** - Account deletion now properly removes analytics data (bio views, link clicks) before removing user
+- **IMPROVED: Error handling and logging** - Better error messages and console logging for debugging account deletion issues
 - **FIXED: Email verification URLs for bioqz.com production** - All verification emails now use bioqz.com URLs instead of Railway production URLs
 - **ENHANCED: Email service configuration** - Updated sendVerificationEmail, sendWelcomeEmail, and sendPasswordResetEmail to use bioqz.com in production
 - **APPLIED: Database migrations** - All tables (users, bios, sessions, analytics) successfully created with proper relationships

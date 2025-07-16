@@ -366,23 +366,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/users/account', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      console.log(`Attempting to delete account for user: ${userId}`);
       
-      // Delete user's bio first
-      const existingBio = await storage.getBioByUserId(userId);
-      if (existingBio) {
-        await storage.deleteBio(userId);
-      }
-      
-      // Delete user
+      // Delete user (this now handles all cascading deletes)
       await storage.deleteUser(userId);
+      console.log(`Successfully deleted user: ${userId}`);
       
       // Logout user
-      req.logout(() => {
+      req.logout((err) => {
+        if (err) {
+          console.error("Error during logout:", err);
+          return res.status(500).json({ message: "Account deleted but logout failed" });
+        }
         res.json({ message: "Account deleted successfully" });
       });
     } catch (error) {
       console.error("Error deleting account:", error);
-      res.status(500).json({ message: "Failed to delete account" });
+      res.status(500).json({ 
+        message: "Failed to delete account", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
