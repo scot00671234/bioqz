@@ -16,6 +16,7 @@ import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 
 import ProEditor from "@/pages/pro-editor";
+import PaymentSuccess from "@/pages/payment-success";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,9 @@ function Router() {
 
   return (
     <Switch>
+      {/* Payment success page should be accessible regardless of auth status */}
+      <Route path="/payment-success" component={PaymentSuccess} />
+      
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
