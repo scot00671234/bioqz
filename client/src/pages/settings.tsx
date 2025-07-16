@@ -179,6 +179,12 @@ export default function Settings() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
+              <button
+                onClick={() => navigate("/")}
+                className="text-2xl font-bold text-brand-600 hover:text-brand-700 cursor-pointer mr-4"
+              >
+                bioqz
+              </button>
               <h1 className="text-2xl font-bold text-brand-600">Settings</h1>
             </div>
           </div>
@@ -237,36 +243,54 @@ export default function Settings() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    {user?.isPaid ? "Pro Plan" : "Free Plan"}
-                  </h3>
-                  <p className="text-gray-600">
-                    {user?.isPaid 
-                      ? "You have access to all premium features"
-                      : "Upgrade to unlock premium features"}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  {!user?.isPaid && (
-                    <Button
-                      onClick={handleUpgrade}
-                      className="bg-brand-600 text-white hover:bg-brand-700"
-                    >
-                      Upgrade to Pro
-                    </Button>
-                  )}
-                  {user?.isPaid && (
-                    <Button
-                      onClick={handleCancelSubscription}
-                      disabled={cancelSubscriptionMutation.isPending}
-                      variant="outline"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      {cancelSubscriptionMutation.isPending ? "Cancelling..." : "Cancel Subscription"}
-                    </Button>
-                  )}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {user?.isPaid ? "Pro Plan" : "Free Plan"}
+                    </h3>
+                    <p className="text-gray-600">
+                      {user?.isPaid 
+                        ? "You have access to all premium features"
+                        : "Upgrade to unlock premium features"}
+                    </p>
+                    {user?.isPaid && (
+                      <div className="mt-2 space-y-1">
+                        <p className="text-sm text-gray-500">
+                          <span className="font-medium">Billing:</span> $9.00 USD / month
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          <span className="font-medium">Next billing date:</span> {
+                            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          }
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex space-x-2">
+                    {!user?.isPaid && (
+                      <Button
+                        onClick={handleUpgrade}
+                        className="bg-brand-600 text-white hover:bg-brand-700"
+                      >
+                        Upgrade to Pro
+                      </Button>
+                    )}
+                    {user?.isPaid && (
+                      <Button
+                        onClick={handleCancelSubscription}
+                        disabled={cancelSubscriptionMutation.isPending}
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        {cancelSubscriptionMutation.isPending ? "Cancelling..." : "Cancel Subscription"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>

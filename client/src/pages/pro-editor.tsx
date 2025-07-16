@@ -143,6 +143,12 @@ export default function ProEditor() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
+              <button
+                onClick={handleBackToDashboard}
+                className="text-2xl font-bold text-brand-600 hover:text-brand-700 cursor-pointer mr-4"
+              >
+                bioqz
+              </button>
               <div className="flex items-center">
                 <Crown className="h-5 w-5 text-yellow-500 mr-2" />
                 <h1 className="text-2xl font-bold text-gray-900">Pro Editor</h1>

@@ -55,7 +55,12 @@ export default function ForgotPassword() {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-brand-600 mb-2">bioqz</h1>
+            <button
+              onClick={() => navigate("/")}
+              className="text-3xl font-bold text-brand-600 hover:text-brand-700 cursor-pointer mb-2"
+            >
+              bioqz
+            </button>
             <h2 className="text-2xl font-bold text-gray-900">
               Forgot your password?
             </h2>

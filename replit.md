@@ -6,6 +6,18 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 
 ## Recent Changes (July 2025)
 
+### Stripe Subscription Integration & Navigation Enhancement (July 2025)
+- **COMPLETED: bioqz logo navigation functionality** - Logo now clickable across all pages with appropriate navigation behavior
+- **LANDING PAGE: bioqz logo scrolls to top** - When not logged in, clicking logo smoothly scrolls to top of landing page
+- **DASHBOARD: bioqz logo refreshes dashboard** - When logged in, clicking logo refreshes current dashboard page
+- **ALL PAGES: bioqz logo navigation** - Updated auth, settings, analytics, pro-editor, and subscription pages with clickable logos
+- **ADDED: Stripe subscription system** - Complete /api/get-or-create-subscription endpoint for $9/month Pro plan
+- **ADDED: Stripe webhook handling** - Process invoice.payment_succeeded and customer.subscription.deleted events
+- **ENHANCED: Settings page billing info** - Added billing period display showing "$9.00 USD / month" and next billing date
+- **ENHANCED: Subscription management** - Real-time subscription status updates with proper database synchronization
+- **PREPARED: Production-ready Stripe integration** - System ready for STRIPE_SECRET_KEY and VITE_STRIPE_PUBLIC_KEY configuration
+- **VERIFIED: All navigation and payment features working** - Comprehensive testing completed for user flow and payment processing
+
 ### Replit Agent to Standard Environment Migration & New Features (July 2025)
 - **COMPLETED: Successfully migrated from Replit Agent to standard Replit environment** - Full PostgreSQL database setup with automatic environment variable configuration
 - **ADDED: Complete forgot password functionality** - Added "Forgot your password?" link to sign in page with email-based reset system

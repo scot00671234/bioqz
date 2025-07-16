@@ -37,7 +37,12 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-brand-600 animate-bounce-subtle">bioqz</h1>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-2xl font-bold text-brand-600 animate-bounce-subtle hover:text-brand-700 cursor-pointer"
+                >
+                  bioqz
+                </button>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">

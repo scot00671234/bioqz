@@ -139,7 +139,12 @@ export default function Subscribe() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-brand-600 mr-8">bioqz</h1>
+              <button
+                onClick={() => navigate("/")}
+                className="text-2xl font-bold text-brand-600 hover:text-brand-700 cursor-pointer mr-8"
+              >
+                bioqz
+              </button>
               <span className="text-gray-600">Upgrade to Pro</span>
             </div>
             <Button onClick={() => navigate("/dashboard")} variant="ghost">

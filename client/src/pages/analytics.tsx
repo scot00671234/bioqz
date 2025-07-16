@@ -124,6 +124,12 @@ export default function Analytics() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
+              <button
+                onClick={() => navigate("/")}
+                className="text-2xl font-bold text-brand-600 hover:text-brand-700 cursor-pointer mr-4"
+              >
+                bioqz
+              </button>
               <h1 className="text-2xl font-bold text-brand-600">Analytics</h1>
             </div>
             <div className="flex items-center">
