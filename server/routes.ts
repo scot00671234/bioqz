@@ -231,6 +231,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username is required" });
       }
       
+      // Check for reserved usernames
+      const reservedUsernames = [
+        'dashboard', 'subscribe', 'settings', 'analytics', 'pro-editor', 
+        'payment-success', 'auth', 'demo', 'forgot-password', 'reset-password',
+        'api', 'admin', 'www', 'mail', 'ftp', 'blog', 'shop', 'store', 'help',
+        'support', 'contact', 'about', 'privacy', 'terms', 'login', 'register',
+        'signup', 'signin', 'logout', 'profile', 'account', 'billing'
+      ];
+      
+      if (reservedUsernames.includes(username.toLowerCase())) {
+        return res.status(400).json({ 
+          message: "This username is reserved. Please choose a different one." 
+        });
+      }
+      
       // Check if username is already taken
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser && existingUser.id !== userId) {
@@ -315,6 +330,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/bios/:username', async (req, res) => {
     try {
       const { username } = req.params;
+      
+      // Check for reserved usernames that are app routes
+      const reservedUsernames = [
+        'dashboard', 'subscribe', 'settings', 'analytics', 'pro-editor', 
+        'payment-success', 'auth', 'demo', 'forgot-password', 'reset-password',
+        'api', 'admin', 'www', 'mail', 'ftp', 'blog', 'shop', 'store', 'help',
+        'support', 'contact', 'about', 'privacy', 'terms', 'login', 'register',
+        'signup', 'signin', 'logout', 'profile', 'account', 'billing'
+      ];
+      
+      if (reservedUsernames.includes(username.toLowerCase())) {
+        return res.status(404).json({ message: "Bio not found" });
+      }
+      
       const bio = await storage.getBioByUsername(username);
       
       if (!bio) {
