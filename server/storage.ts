@@ -28,7 +28,7 @@ export interface IStorage {
   updatePasswordResetToken(userId: string, token: string, expires: Date): Promise<void>;
   resetPassword(token: string, newPassword: string): Promise<User | null>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
-  cancelUserSubscription(userId: string): Promise<User>;
+  cancelUserSubscription(userId: string, subscriptionEndDate?: Date): Promise<User>;
   deleteUser(userId: string): Promise<void>;
   
   // Bio operations
@@ -49,6 +49,9 @@ export interface IStorage {
     topLinks: Array<{ title: string; clicks: number; url: string }>;
     dailyViews: Array<{ date: string; views: number }>;
   }>;
+
+  // Subscription operations
+  checkExpiredSubscriptions(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -200,12 +203,13 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async cancelUserSubscription(userId: string): Promise<User> {
+  async cancelUserSubscription(userId: string, subscriptionEndDate?: Date): Promise<User> {
     const [user] = await db
       .update(users)
       .set({
-        isPaid: false,
+        isPaid: subscriptionEndDate ? (subscriptionEndDate > new Date()) : false, // Keep paid status until end date
         stripeSubscriptionId: null,
+        subscriptionEndDate: subscriptionEndDate,
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId))
@@ -416,6 +420,41 @@ export class DatabaseStorage implements IStorage {
       topLinks,
       dailyViews
     };
+  }
+
+  // Check for expired subscriptions and update user status
+  async checkExpiredSubscriptions(): Promise<void> {
+    const now = new Date();
+    
+    // Find users with expired subscriptions
+    const expiredUsers = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.isPaid, true),
+          users.subscriptionEndDate !== null,
+          sql`${users.subscriptionEndDate} < ${now}`
+        )
+      );
+
+    if (expiredUsers.length > 0) {
+      console.log(`Found ${expiredUsers.length} expired subscriptions to process`);
+      
+      // Update all expired users to free plan
+      for (const user of expiredUsers) {
+        await db
+          .update(users)
+          .set({
+            isPaid: false,
+            subscriptionEndDate: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id));
+        
+        console.log(`Updated user ${user.id} to free plan (subscription expired)`);
+      }
+    }
   }
 }
 

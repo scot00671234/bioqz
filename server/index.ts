@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./storage";
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -69,5 +70,11 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Check expired subscriptions on startup and every hour
+    storage.checkExpiredSubscriptions().catch(console.error);
+    setInterval(() => {
+      storage.checkExpiredSubscriptions().catch(console.error);
+    }, 60 * 60 * 1000); // Every hour
   });
 })();

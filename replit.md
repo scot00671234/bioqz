@@ -11,6 +11,9 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - **FIXED: Account deletion functionality** - Resolved foreign key constraint issues preventing user account deletion
 - **ENHANCED: Cascading deletion system** - Account deletion now properly removes analytics data (bio views, link clicks) before removing user
 - **IMPROVED: Error handling and logging** - Better error messages and console logging for debugging account deletion issues
+- **ADDED: Subscription end date tracking** - Users can now see when their cancelled subscription will end (end of billing period)
+- **ENHANCED: Subscription cancellation UX** - Settings page shows subscription end date and removes cancel button after cancellation
+- **IMPLEMENTED: Automatic subscription expiration** - Background job checks hourly for expired subscriptions and updates user status
 - **FIXED: Email verification URLs for bioqz.com production** - All verification emails now use bioqz.com URLs instead of Railway production URLs
 - **ENHANCED: Email service configuration** - Updated sendVerificationEmail, sendWelcomeEmail, and sendPasswordResetEmail to use bioqz.com in production
 - **APPLIED: Database migrations** - All tables (users, bios, sessions, analytics) successfully created with proper relationships

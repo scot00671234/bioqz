@@ -527,22 +527,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // If user has a Stripe subscription, cancel it
+      let subscriptionEndDate = null;
+
+      // If user has a Stripe subscription, cancel it and get the period end date
       if (stripe && user.stripeSubscriptionId && user.stripeCustomerId) {
         try {
-          await stripe.subscriptions.update(user.stripeSubscriptionId, {
+          const updatedSubscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
             cancel_at_period_end: true,
           });
+          
+          // Get the subscription end date from Stripe
+          subscriptionEndDate = new Date(updatedSubscription.current_period_end * 1000);
+          console.log(`Subscription will end on: ${subscriptionEndDate}`);
         } catch (stripeError: any) {
           console.error("Error cancelling Stripe subscription:", stripeError);
-          // Continue with local cancellation even if Stripe fails
+          // Set end date to end of current month as fallback
+          const now = new Date();
+          subscriptionEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         }
+      } else {
+        // Fallback: set end date to end of current month
+        const now = new Date();
+        subscriptionEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       }
 
-      // Update user's subscription status in database
-      const updatedUser = await storage.cancelUserSubscription(userId);
+      // Update user's subscription status with end date
+      const updatedUser = await storage.cancelUserSubscription(userId, subscriptionEndDate);
 
-      res.json({ message: "Subscription cancelled successfully", user: updatedUser });
+      res.json({ 
+        message: "Subscription cancelled successfully", 
+        user: updatedUser,
+        subscriptionEndDate: subscriptionEndDate
+      });
     } catch (error: any) {
       console.error("Error cancelling subscription:", error);
       res.status(500).json({ message: "Failed to cancel subscription" });

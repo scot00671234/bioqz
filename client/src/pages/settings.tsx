@@ -235,7 +235,9 @@ export default function Settings() {
                     </h3>
                     <p className="text-gray-600">
                       {user?.isPaid 
-                        ? "You have access to all premium features"
+                        ? user?.subscriptionEndDate 
+                          ? "Your subscription has been cancelled and will end at the end of your billing period"
+                          : "You have access to all premium features"
                         : "Upgrade to unlock premium features"}
                     </p>
                     {user?.isPaid && (
@@ -243,15 +245,27 @@ export default function Settings() {
                         <p className="text-sm text-gray-500">
                           <span className="font-medium">Billing:</span> $9.00 USD / month
                         </p>
-                        <p className="text-sm text-gray-500">
-                          <span className="font-medium">Next billing date:</span> {
-                            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })
-                          }
-                        </p>
+                        {user?.subscriptionEndDate ? (
+                          <p className="text-sm text-red-600">
+                            <span className="font-medium">Subscription ends:</span> {
+                              new Date(user.subscriptionEndDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })
+                            }
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            <span className="font-medium">Next billing date:</span> {
+                              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })
+                            }
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -264,7 +278,7 @@ export default function Settings() {
                         Upgrade to Pro
                       </Button>
                     )}
-                    {user?.isPaid && (
+                    {user?.isPaid && !user?.subscriptionEndDate && (
                       <Button
                         onClick={handleCancelSubscription}
                         disabled={cancelSubscriptionMutation.isPending}
@@ -273,6 +287,16 @@ export default function Settings() {
                       >
                         {cancelSubscriptionMutation.isPending ? "Cancelling..." : "Cancel Subscription"}
                       </Button>
+                    )}
+                    {user?.isPaid && user?.subscriptionEndDate && (
+                      <div className="text-sm text-gray-500 italic">
+                        Subscription cancelled - you'll retain access until {
+                          new Date(user.subscriptionEndDate).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        }
+                      </div>
                     )}
                   </div>
                 </div>

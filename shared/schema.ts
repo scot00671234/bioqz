@@ -35,6 +35,7 @@ export const users = pgTable("users", {
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   isPaid: boolean("is_paid").default(false),
+  subscriptionEndDate: timestamp("subscription_end_date"), // When subscription actually ends
   isDemoMode: boolean("is_demo_mode").default(false),
   googleId: varchar("google_id"), // For Google OAuth
   emailVerified: boolean("email_verified").default(false),
