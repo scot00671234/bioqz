@@ -409,12 +409,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Legacy subscription route - redirect to correct endpoint
-  app.post("/api/bios/subscribe", (req, res) => {
-    console.log("Legacy /api/bios/subscribe called, redirecting to /api/get-or-create-subscription");
-    res.status(404).json({ 
-      message: "Endpoint moved", 
+  app.all("/api/bios/subscribe", (req, res) => {
+    console.log("Legacy /api/bios/subscribe called with method:", req.method);
+    console.log("Headers:", req.headers);
+    console.log("User agent:", req.get('User-Agent'));
+    res.status(301).json({ 
+      error: "Endpoint moved", 
       newEndpoint: "/api/get-or-create-subscription",
-      redirectUrl: "/subscribe"
+      redirectUrl: "/subscribe",
+      message: "Please use /api/get-or-create-subscription instead"
     });
   });
 
@@ -507,6 +510,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Main Stripe subscription route
   app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
     try {
+      console.log("=== SUBSCRIPTION REQUEST START ===");
+      console.log("User authenticated:", !!req.user);
+      console.log("User ID:", req.user?.id);
+      console.log("Stripe initialized:", !!stripe);
+      console.log("Environment check - STRIPE_SECRET_KEY exists:", !!process.env.STRIPE_SECRET_KEY);
+      console.log("Environment check - VITE_STRIPE_PUBLIC_KEY exists:", !!process.env.VITE_STRIPE_PUBLIC_KEY);
+      
       if (!stripe) {
         console.error("Stripe not initialized. STRIPE_SECRET_KEY:", !!process.env.STRIPE_SECRET_KEY);
         return res.status(503).json({ message: "Payment service not available - Stripe not configured" });

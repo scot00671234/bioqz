@@ -94,11 +94,18 @@ export default function Subscribe() {
 
     // Create subscription as soon as the page loads
     console.log("Making request to /api/get-or-create-subscription");
+    console.log("Current URL:", window.location.href);
+    console.log("User authenticated:", isAuthenticated);
+    
     apiRequest("/api/get-or-create-subscription", "POST")
-      .then((res) => {
+      .then(async (res) => {
         console.log("Response status:", res.status);
+        console.log("Response headers:", Object.fromEntries(res.headers.entries()));
+        
         if (!res.ok) {
-          throw new Error(`Failed to create subscription: ${res.status} ${res.statusText}`);
+          const errorText = await res.text();
+          console.error("Error response body:", errorText);
+          throw new Error(`Failed to create subscription: ${res.status} ${res.statusText}. ${errorText}`);
         }
         return res.json();
       })
@@ -106,13 +113,22 @@ export default function Subscribe() {
         console.log("Subscription data received:", data);
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
+        } else if (data.status === 'active') {
+          // User already has active subscription
+          console.log("User already has active subscription");
+          navigate("/dashboard?already_subscribed=true");
         } else {
           throw new Error("No client secret received from server");
         }
       })
       .catch((err) => {
         console.error("Subscription error:", err);
-        setError(err.message);
+        if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          setError("Please log in to subscribe to Pro");
+          setTimeout(() => navigate("/"), 2000);
+        } else {
+          setError(err.message);
+        }
       });
   }, [isAuthenticated, navigate]);
 
