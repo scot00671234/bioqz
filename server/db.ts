@@ -2,14 +2,13 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// For development, use a local database URL if not provided  
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://runner@localhost:5432/bioqz?host=/tmp';
+
+console.log('Using database URL:', databaseUrl.replace(/\/\/[^:]+:[^@]+@/, '//[credentials]@'));
 
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
