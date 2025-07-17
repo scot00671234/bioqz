@@ -18,19 +18,41 @@ export default function PaymentSuccess() {
       return;
     }
 
-    // Invalidate user data cache to refresh Pro status
-    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    
-    // Show success toast
-    toast({
-      title: "Payment Successful!",
-      description: "Welcome to bioqz Pro! Your account has been upgraded.",
-    });
+    // Verify subscription status and activate Pro features
+    const verifySubscription = async () => {
+      try {
+        const response = await apiRequest("/api/verify-subscription", "POST");
+        const data = await response.json();
+        
+        if (data.success && data.isPaid) {
+          // Invalidate user data cache to refresh Pro status
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          
+          toast({
+            title: "Payment Successful!",
+            description: "Welcome to bioqz Pro! Your account has been upgraded.",
+          });
+        } else {
+          toast({
+            title: "Payment Processing",
+            description: "Your payment is being processed. Please wait a moment...",
+          });
+        }
+      } catch (error) {
+        console.error("Error verifying subscription:", error);
+        toast({
+          title: "Payment Processing",
+          description: "Verifying your payment. You'll see Pro features shortly.",
+        });
+      }
+    };
+
+    verifySubscription();
 
     // Redirect to dashboard after a short delay to allow data refresh
     const timer = setTimeout(() => {
       navigate("/dashboard");
-    }, 2000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [isAuthenticated, navigate, toast]);

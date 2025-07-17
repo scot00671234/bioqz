@@ -12,6 +12,10 @@ bioqz is a micro-SaaS application that allows users to create personalized bio p
 - **ENHANCED: Webhook security** - Added comprehensive logging and proper user lookup by Stripe customer ID
 - **VERIFIED: Production-ready payment flow** - Users must complete successful payment to access Pro features in both development and Railway production environments
 - **PROTECTED: Railway production environment** - Security fix ensures payment bypass cannot occur in production deployment
+- **ADDED: Non-webhook verification system** - Added `/api/verify-subscription` endpoint for manual payment verification when webhooks are not configured
+- **ENHANCED: Frontend verification** - Added "Verify Subscription" buttons in dashboard and settings for users to manually activate Pro features after payment
+- **IMPROVED: Payment success flow** - Payment success page now automatically verifies subscription status and refreshes user data
+- **SECURED: Multiple verification methods** - System works with both webhook-based and manual verification approaches for flexible deployment
 
 ### Replit Agent to Standard Environment Migration & Production Fixes (July 2025)
 - **COMPLETED: Migration from Replit Agent to standard Replit environment** - Successfully migrated with PostgreSQL database setup

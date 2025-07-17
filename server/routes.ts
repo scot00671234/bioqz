@@ -680,6 +680,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Subscription verification endpoint (for non-webhook setup)
+  app.post('/api/verify-subscription', isAuthenticated, async (req: any, res) => {
+    if (!stripe) {
+      return res.status(503).json({ message: "Payment service not available" });
+    }
+
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.stripeSubscriptionId) {
+        return res.status(400).json({ message: "No subscription found" });
+      }
+
+      console.log(`🔍 Verifying subscription ${user.stripeSubscriptionId} for user ${userId}`);
+
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      
+      if (subscription.status === 'active') {
+        console.log(`✅ Subscription is active, upgrading user ${userId} to Pro`);
+        await storage.updateUserPaymentStatus(userId, true, subscription.id);
+        
+        res.json({ 
+          success: true, 
+          isPaid: true,
+          subscriptionStatus: subscription.status,
+          message: "Subscription verified and activated"
+        });
+      } else {
+        console.log(`⚠️ Subscription status is ${subscription.status}, not activating Pro`);
+        res.json({ 
+          success: false, 
+          isPaid: false,
+          subscriptionStatus: subscription.status,
+          message: `Subscription status: ${subscription.status}`
+        });
+      }
+    } catch (error: any) {
+      console.error("Error verifying subscription:", error);
+      res.status(500).json({ message: "Failed to verify subscription" });
+    }
+  });
+
   // Stripe webhook to handle subscription events
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];

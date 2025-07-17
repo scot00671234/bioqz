@@ -143,6 +143,36 @@ export default function Settings() {
     navigate("/subscribe");
   };
 
+  const verifySubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("/api/verify-subscription", "POST");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success && data.isPaid) {
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        toast({
+          title: "Subscription Verified!",
+          description: "Your Pro features have been activated.",
+        });
+      } else {
+        toast({
+          title: "Subscription Not Active",
+          description: `Status: ${data.subscriptionStatus}. Please complete payment first.`,
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: Error) => {
+      console.error("Subscription verification failed:", error);
+      toast({
+        title: "Verification Failed",
+        description: "Unable to verify subscription. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -278,12 +308,22 @@ export default function Settings() {
                   </div>
                   <div className="flex space-x-2">
                     {!user?.isPaid && (
-                      <Button
-                        onClick={handleUpgrade}
-                        className="bg-brand-600 text-white hover:bg-brand-700"
-                      >
-                        Upgrade to Pro
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button
+                          onClick={handleUpgrade}
+                          className="bg-brand-600 text-white hover:bg-brand-700"
+                        >
+                          Upgrade to Pro
+                        </Button>
+                        <Button
+                          onClick={() => verifySubscriptionMutation.mutate()}
+                          disabled={verifySubscriptionMutation.isPending}
+                          variant="outline"
+                          className="border-brand-600 text-brand-600 hover:bg-brand-50"
+                        >
+                          {verifySubscriptionMutation.isPending ? "Verifying..." : "Verify Subscription"}
+                        </Button>
+                      </div>
                     )}
                     {user?.isPaid && !user?.subscriptionEndDate && (
                       <Button
