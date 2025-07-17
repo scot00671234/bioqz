@@ -195,11 +195,29 @@ export class DatabaseStorage implements IStorage {
       .set({
         stripeCustomerId,
         stripeSubscriptionId,
-        isPaid: true,
+        // DO NOT set isPaid: true here - only set it when payment succeeds via webhook
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId))
       .returning();
+    return user;
+  }
+
+  async updateUserPaymentStatus(userId: string, isPaid: boolean, stripeSubscriptionId?: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        isPaid,
+        stripeSubscriptionId: stripeSubscriptionId || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId));
     return user;
   }
 

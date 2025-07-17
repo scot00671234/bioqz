@@ -666,38 +666,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For testing purposes, we'll handle subscription events
       const event = JSON.parse(req.body.toString());
       
+      console.log(`🔔 Webhook received: ${event.type}`);
+      
       if (event.type === 'invoice.payment_succeeded') {
         const invoice = event.data.object;
+        console.log(`💳 Payment succeeded for customer: ${invoice.customer}, subscription: ${invoice.subscription}`);
         
         if (invoice.subscription && invoice.customer) {
           // Find user by Stripe customer ID and update their payment status
-          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, invoice.customer));
+          const user = await storage.getUserByStripeCustomerId(invoice.customer);
           
-          if (userResults.length > 0) {
-            await db.update(users)
-              .set({ 
-                isPaid: true,
-                stripeSubscriptionId: invoice.subscription
-              })
-              .where(eq(users.id, userResults[0].id));
+          if (user) {
+            console.log(`✅ Updating user ${user.id} (${user.email}) to Pro status`);
+            
+            await storage.updateUserPaymentStatus(user.id, true, invoice.subscription);
+            
+            console.log(`🎉 User ${user.id} successfully upgraded to Pro`);
+          } else {
+            console.warn(`⚠️ No user found for Stripe customer: ${invoice.customer}`);
           }
         }
       }
       
       if (event.type === 'customer.subscription.deleted') {
         const subscription = event.data.object;
+        console.log(`❌ Subscription deleted for customer: ${subscription.customer}`);
         
         if (subscription.customer) {
           // Find user by Stripe customer ID and remove their Pro status
-          const userResults = await db.select().from(users).where(eq(users.stripeCustomerId, subscription.customer));
+          const user = await storage.getUserByStripeCustomerId(subscription.customer);
           
-          if (userResults.length > 0) {
-            await db.update(users)
-              .set({ 
-                isPaid: false,
-                stripeSubscriptionId: null
-              })
-              .where(eq(users.id, userResults[0].id));
+          if (user) {
+            console.log(`📉 Downgrading user ${user.id} (${user.email}) to free status`);
+            
+            await storage.updateUserPaymentStatus(user.id, false);
+            
+            console.log(`🔄 User ${user.id} downgraded to free`);
+          } else {
+            console.warn(`⚠️ No user found for Stripe customer: ${subscription.customer}`);
           }
         }
       }
