@@ -33,6 +33,13 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  // Refresh user data when dashboard loads (for Pro status updates)
+  useEffect(() => {
+    if (isAuthenticated) {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    }
+  }, [isAuthenticated, queryClient]);
+
 
 
   const { data: bio } = useQuery<Bio | null>({

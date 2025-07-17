@@ -37,6 +37,13 @@ export default function Settings() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
+  // Refresh user data when settings loads (for Pro status updates)
+  useEffect(() => {
+    if (isAuthenticated) {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    }
+  }, [isAuthenticated, queryClient]);
+
   const { data: bio } = useQuery<Bio | null>({
     queryKey: ["/api/bios/me"],
     enabled: isAuthenticated,

@@ -1,95 +1,77 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, Crown, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useQueryClient } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Crown, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PaymentSuccess() {
   const [, navigate] = useLocation();
   const { user, isAuthenticated } = useAuth();
-  const queryClient = useQueryClient();
-  const [countdown, setCountdown] = useState(5);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Refresh user data to get updated Pro status if authenticated
-    if (isAuthenticated) {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    }
-    
-    // Auto-redirect countdown
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          if (isAuthenticated) {
-            navigate("/dashboard");
-          } else {
-            navigate("/");
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [navigate, queryClient, isAuthenticated]);
-
-  const handleGoToDashboard = () => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    } else {
+    if (!isAuthenticated) {
       navigate("/");
+      return;
     }
-  };
+
+    // Invalidate user data cache to refresh Pro status
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    
+    // Show success toast
+    toast({
+      title: "Payment Successful!",
+      description: "Welcome to bioqz Pro! Your account has been upgraded.",
+    });
+
+    // Redirect to dashboard after a short delay to allow data refresh
+    const timer = setTimeout(() => {
+      navigate("/dashboard");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, navigate, toast]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md text-center">
-        <CardContent className="pt-6 pb-8">
-          {/* Success Icon */}
-          <div className="mb-6">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-12 w-12 text-green-600" />
-            </div>
-            <Crown className="h-8 w-8 text-yellow-500 mx-auto" />
-          </div>
-
-          {/* Success Message */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center text-brand-700">
+            <Crown className="h-6 w-6 mr-2" />
             Welcome to bioqz Pro!
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Your payment was successful. You now have access to unlimited links, custom themes, and advanced analytics.
-          </p>
-
-          {/* User Greeting */}
-          {user && (
-            <div className="mb-6 p-4 bg-brand-50 rounded-lg">
-              <p className="text-brand-700 font-medium">
-                Hi {user.firstName || user.email}! 🎉
-              </p>
-              <p className="text-sm text-brand-600 mt-1">
-                Your Pro subscription is now active
-              </p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <div className="flex items-center justify-center">
+            <div className="rounded-full bg-green-100 p-3">
+              <Check className="h-6 w-6 text-green-600" />
             </div>
-          )}
-
-          {/* Action Button */}
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-4">
+              Your subscription to bioqz Pro has been activated. You now have access to:
+            </p>
+            <ul className="text-left text-sm text-gray-600 space-y-1">
+              <li>• Unlimited bio links</li>
+              <li>• Custom color themes</li>
+              <li>• Advanced analytics</li>
+              <li>• Profile picture uploads</li>
+            </ul>
+          </div>
           <Button 
-            onClick={handleGoToDashboard}
-            className="w-full bg-brand-600 hover:bg-brand-700 text-white mb-4"
-            size="lg"
+            onClick={() => navigate("/dashboard")}
+            className="w-full bg-brand-600 hover:bg-brand-700"
           >
-            <ArrowRight className="h-4 w-4 mr-2" />
             Go to Dashboard
           </Button>
-
-          {/* Auto-redirect notice */}
-          <p className="text-sm text-gray-500">
-            Redirecting automatically in {countdown} second{countdown !== 1 ? 's' : ''}...
-          </p>
         </CardContent>
       </Card>
     </div>

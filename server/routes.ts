@@ -30,6 +30,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const user = req.user;
+      
+      // For Pro users, validate subscription status with Stripe
+      if (user.stripeSubscriptionId && stripe) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+          
+          // If subscription is not active, update user status
+          if (subscription.status !== 'active') {
+            console.log(`User ${user.id} subscription is ${subscription.status}, updating to free`);
+            await storage.updateUserPaymentStatus(user.id, false);
+            user.isPaid = false;
+            user.stripeSubscriptionId = null;
+          }
+        } catch (stripeError) {
+          console.log(`Error validating subscription for user ${user.id}:`, stripeError);
+          // If subscription doesn't exist, update user to free
+          await storage.updateUserPaymentStatus(user.id, false);
+          user.isPaid = false;
+          user.stripeSubscriptionId = null;
+        }
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
